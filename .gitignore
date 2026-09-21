@@ -1,0 +1,23 @@
+# macOS and editor files
+.DS_Store
+.vscode/
+
+# JavaScript dependencies and test output
+node_modules/
+coverage/
+
+# Local runtime data: it is deliberately kept outside this repository, but
+# ignore it too if someone overrides the app data location during development.
+config.json
+tasks.json
+notes.json
+projects.json
+meta.json
+*.bak
+
+# Local launch/runtime artifacts
+*.log
+*.pid
+
+# Personal copies and local integrations
+start_副本.sh

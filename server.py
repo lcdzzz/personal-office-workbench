@@ -19,7 +19,8 @@ from urllib.parse import parse_qs, urlparse
 ROOT = Path(__file__).resolve().parent
 APP_DIR = Path.home() / "Library" / "Application Support" / "PersonalOfficeWorkbench"
 CONFIG_PATH = APP_DIR / "config.json"
-DATA_FILES = {"tasks": "tasks.json", "notes": "notes.json", "projects": "projects.json", "meta": "meta.json"}
+DATA_FILES = {"tasks": "tasks.json", "notes": "notes.json", "projects": "projects.json", "logs": "logs.json", "meta": "meta.json"}
+CORE_KEYS = ("tasks", "notes", "projects", "meta")
 DEFAULT_CONFIG = {"host": "127.0.0.1", "port": 8799}
 write_lock = None
 
@@ -63,17 +64,19 @@ def write_atomic(path: Path, value) -> None:
 
 
 def initial_state() -> dict:
-    return {"tasks": [], "notes": [], "projects": [], "meta": default_meta(False), "generation": 0}
+    return {"tasks": [], "notes": [], "projects": [], "logs": [], "meta": default_meta(False), "generation": 0}
 
 
 def state_from_disk() -> dict:
     paths = {key: APP_DIR / filename for key, filename in DATA_FILES.items()}
-    if not any(path.exists() for path in paths.values()):
+    if not any(paths[key].exists() for key in CORE_KEYS):
         return initial_state()
-    if not all(path.exists() for path in paths.values()):
+    if not all(paths[key].exists() for key in CORE_KEYS):
         raise DataError("本地数据文件不完整，请从备份恢复")
     tasks_doc, notes_doc, projects_doc, meta = [read_json(paths[k]) for k in ("tasks", "notes", "projects", "meta")]
     docs = (("tasks", tasks_doc), ("notes", notes_doc), ("projects", projects_doc))
+    logs_doc = read_json(paths["logs"]) if paths["logs"].exists() else {"items": [], "generation": meta.get("generation")}
+    docs = docs + (("logs", logs_doc),)
     generations = [doc.get("generation") for _, doc in docs] + [meta.get("generation")]
     if len(set(generations)) != 1:
         raise DataError("本地数据正在恢复中或版本不一致，请重试或从备份恢复")
@@ -82,7 +85,7 @@ def state_from_disk() -> dict:
             raise DataError(f"{DATA_FILES[key]} 格式不正确")
     if not isinstance(meta, dict) or not isinstance(meta.get("initialized"), bool):
         raise DataError("meta.json 格式不正确")
-    return {"tasks": tasks_doc["items"], "notes": notes_doc["items"],
+    return {"tasks": tasks_doc["items"], "notes": notes_doc["items"], "logs": logs_doc["items"],
             "projects": projects_doc["items"], "meta": meta,
             "generation": generations[0]}
 
@@ -90,7 +93,7 @@ def state_from_disk() -> dict:
 def validate_state(state: dict) -> dict:
     if not isinstance(state, dict):
         raise DataError("请求数据格式不正确")
-    for key in ("tasks", "notes", "projects"):
+    for key in ("tasks", "notes", "projects", "logs"):
         if not isinstance(state.get(key), list):
             raise DataError(f"{key} 必须是数组")
     meta = state.get("meta")
@@ -109,12 +112,13 @@ def persist_state(state: dict) -> dict:
         "tasks": {"v": 1, "generation": generation, "items": state["tasks"]},
         "notes": {"v": 1, "generation": generation, "items": state["notes"]},
         "projects": {"v": 1, "generation": generation, "items": state["projects"]},
+        "logs": {"v": 1, "generation": generation, "items": state["logs"]},
         "meta": meta,
     }
     APP_DIR.mkdir(parents=True, exist_ok=True)
     for key, payload in payloads.items():
         write_atomic(APP_DIR / DATA_FILES[key], payload)
-    return {"tasks": state["tasks"], "notes": state["notes"], "projects": state["projects"],
+    return {"tasks": state["tasks"], "notes": state["notes"], "projects": state["projects"], "logs": state["logs"],
             "meta": meta, "generation": generation}
 
 
@@ -124,6 +128,7 @@ def zip_bytes(state: dict) -> bytes:
         archive.writestr("tasks.json", json.dumps({"v": 1, "generation": state["generation"], "items": state["tasks"]}, ensure_ascii=False, indent=2))
         archive.writestr("notes.json", json.dumps({"v": 1, "generation": state["generation"], "items": state["notes"]}, ensure_ascii=False, indent=2))
         archive.writestr("projects.json", json.dumps({"v": 1, "generation": state["generation"], "items": state["projects"]}, ensure_ascii=False, indent=2))
+        archive.writestr("logs.json", json.dumps({"v": 1, "generation": state["generation"], "items": state["logs"]}, ensure_ascii=False, indent=2))
         archive.writestr("meta.json", json.dumps(state["meta"], ensure_ascii=False, indent=2))
     return output.getvalue()
 
@@ -132,15 +137,15 @@ def state_from_zip(raw: bytes) -> dict:
     try:
         with zipfile.ZipFile(io.BytesIO(raw)) as archive:
             names = set(archive.namelist())
-            if not set(DATA_FILES.values()).issubset(names):
+            if not {"tasks.json", "notes.json", "projects.json", "meta.json"}.issubset(names):
                 raise DataError("备份缺少必要的数据文件")
-            docs = {name: json.loads(archive.read(name).decode("utf-8")) for name in DATA_FILES.values()}
+            docs = {name: json.loads(archive.read(name).decode("utf-8")) for name in names if name in DATA_FILES.values()}
     except DataError:
         raise
     except Exception as exc:
         raise DataError("备份文件不是有效的工作台 ZIP") from exc
     state = {"tasks": docs["tasks.json"].get("items"), "notes": docs["notes.json"].get("items"),
-             "projects": docs["projects.json"].get("items"), "meta": docs["meta.json"]}
+             "projects": docs["projects.json"].get("items"), "logs": docs.get("logs.json", {}).get("items", []), "meta": docs["meta.json"]}
     return validate_state(state)
 
 
@@ -218,7 +223,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if path.path == "/api/backup/preview":
                 state = state_from_zip(self._body())
-                self._send(HTTPStatus.OK, {"count": sum(len(state[k]) for k in ("tasks", "notes", "projects"))})
+                self._send(HTTPStatus.OK, {"count": sum(len(state[k]) for k in ("tasks", "notes", "projects", "logs"))})
                 return
             if path.path == "/api/backup/import":
                 mode = parse_qs(path.query).get("mode", [""])[0]
@@ -259,6 +264,12 @@ def merge_states(current: dict, incoming: dict) -> dict:
         if note.get("text") and note["text"] not in note_texts:
             note = copy.deepcopy(note); note["id"] = f"import-{now_ms()}-{len(result['notes'])}"
             result["notes"].append(note); note_texts.add(note["text"])
+    log_ids = {x.get("id") for x in result["logs"]}
+    for log in incoming["logs"]:
+        if log.get("text") and log.get("id") not in log_ids:
+            log = copy.deepcopy(log); log["id"] = f"import-{now_ms()}-{len(result['logs'])}"
+            log["projectIds"] = [by_name[name] for name in (source_names.get(pid) for pid in log.get("projectIds", [])) if name in by_name]
+            result["logs"].append(log); log_ids.add(log["id"])
     return result
 
 

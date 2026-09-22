@@ -251,6 +251,7 @@ input[type=text],input[type=date],select,textarea{
 }
 input[type=text]:hover,input[type=date]:hover,select:hover,textarea:hover{border-color:#cfdedd}
 textarea{resize:vertical;min-height:78px;line-height:1.68}
+#logText{min-height:312px}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3.5px rgba(13,148,136,.1)}
 input::placeholder,textarea::placeholder{color:var(--text-4)}
 select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238aa3a1' stroke-width='2.4' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px}
@@ -288,6 +289,12 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .it-title{font-weight:545;word-break:break-word;font-size:13.9px;letter-spacing:-.05px;line-height:1.55}
 .it-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:5px}
 .it-act{display:flex;gap:3px;flex-shrink:0;align-items:center}
+.details{margin-top:7px;font-size:12.5px;line-height:1.68;color:var(--text-2)}
+.details-toggle{padding:0;border:0;background:none;color:var(--accent-deep);font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+.details-toggle:hover{text-decoration:underline}
+.details-summary{margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-3)}
+.details-body{margin-top:6px;padding:8px 10px;border-left:2px solid var(--accent);background:var(--accent-soft2);border-radius:0 var(--radius-xs) var(--radius-xs) 0;word-break:break-word}
+.log-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.log-cal button{min-height:48px;border-radius:12px;background:var(--bg-2);font:inherit;color:var(--text-2)}.log-cal button.has-log{background:var(--accent-soft);color:var(--accent-deep);box-shadow:inset 0 0 0 1px rgba(13,148,136,.18)}.log-cal button.on{background:var(--accent);color:#fff}.log-cal button.out{opacity:.42}.log-list{display:flex;flex-direction:column;gap:8px}.log-row{padding:11px 12px;text-align:left;border:1px solid var(--line-soft);border-radius:var(--radius-sm);background:#fff;font:inherit}.log-row:hover{border-color:var(--accent)}.log-row p{margin:4px 0 0;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ico-btn{width:31px;height:31px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;color:var(--text-4);transition:.15s}
 .ico-btn:hover{background:var(--bg-2);color:var(--text-2)}
 .ico-btn.red:hover{background:var(--danger-soft);color:var(--danger)}
@@ -591,7 +598,7 @@ const I18N = {
   zh: {
     appName: '个人办公工作台', appTag: '本地文件版',
     navWorkspace: '工作区', navFocus: '今日焦点', navTasks: '今天待办', navNotes: '灵感速记',
-    navProjects: '项目跟进', navReview: '每周复盘', navBackup: '数据说明',
+    navProjects: '项目跟进', navLogs: '工作日志', navReview: '每周复盘', navBackup: '数据说明',
     footStore: '数据本地存储', footRecords: n => `共 ${n} 条记录`,
     footBackedAt: t => ` · 上次备份 ${t}`, footNeverBacked: ' · 还没备份过',
     langSwitch: 'EN', langTitle: '切换到英文',
@@ -631,6 +638,8 @@ const I18N = {
     rollAllOverdue: '逾期全部顺延到明天',
     addOneTask: '加一条任务', addTaskHint: '可以挂到某个项目下，项目卡上会显示进度',
     lblWhat: '要做什么', phWhat: '例如：把方案的结论页写完',
+    lblDetails: '详情（可不填）', phTaskDetails: '补充步骤、验收要点或关键链接',
+    viewDetails: '查看详情', hideDetails: '收起详情',
     lblPrio: '轻重缓急', lblDue: '截止日期',
     lblLinkProj: '关联项目（可不选）', optNoProj: '不关联项目',
     btnAdd: '添加', taskListTitle: '任务清单',
@@ -651,6 +660,7 @@ const I18N = {
     lblTags: '标签（用逗号或空格分隔）', phTags: '例如：产品, 方法',
     btnNote: '记下来', myNotes: '我的灵感', phSearch: '搜内容或标签',
     notesEmpty: '还没有记录，上面写一条试试。', notesNoMatch: '没有匹配的灵感。',
+    logsHead: '工作日志', logsSub: '按日期记录工作过程，可关联多个项目。', logDate: '日期', logContent: '日志内容', logProjects: '关联项目（可多选）', logAdd: '记录日志', logEmpty: '这一天还没有日志。', logTimeline: '相关日志时间线', logCount: n => `相关日志 ${n} 篇`, logView: '查看日志', logBack: '返回全部日志',
 
     projHead: '项目跟进',
     projSub: (run, st, done, linked) => `${run} 个在跑${st ? ` · <span style="color:var(--danger);font-weight:600">${st} 个卡住</span>` : ''} · 已完成 ${done} 个 · 挂了 ${linked} 条待办`,
@@ -660,6 +670,7 @@ const I18N = {
     lblStage: '现在到哪一步', phStage: '例如：视觉稿第二轮评审中',
     lblNext: '下一步做什么', phNext: '例如：周五前定稿并提交排期',
     lblBlocker: '卡在哪儿（没有就留空）', phBlocker: '例如：等数据组回复 6 月口径',
+    phProjDetails: '记下背景、目标、关键链接或决策',
     btnAddProj: '添加项目', allProjTitle: '全部项目', projEmpty: '还没有项目。',
     kNow: '现在', kNext: '下一步', kBlock: '卡在', kUpdated: '更新',
     vUnset: '未填', vNoBlock: '没卡住',
@@ -779,7 +790,7 @@ const I18N = {
   en: {
     appName: 'Personal Office Workbench', appTag: 'Local file edition',
     navWorkspace: 'Workspace', navFocus: "Today's Focus", navTasks: 'Tasks', navNotes: 'Quick Notes',
-    navProjects: 'Projects', navReview: 'Weekly Review', navBackup: 'Data Info',
+    navProjects: 'Projects', navLogs: 'Work Logs', navReview: 'Weekly Review', navBackup: 'Data Info',
     footStore: 'Stored locally', footRecords: n => `${n} records`,
     footBackedAt: t => ` · Last backup ${t}`, footNeverBacked: ' · Never backed up',
     langSwitch: '中文', langTitle: 'Switch to Chinese',
@@ -819,6 +830,8 @@ const I18N = {
     rollAllOverdue: 'Postpone all overdue to tomorrow',
     addOneTask: 'Add a task', addTaskHint: 'Attach it to a project and the project card will show progress',
     lblWhat: 'What needs doing', phWhat: 'e.g. Finish the conclusion page of the proposal',
+    lblDetails: 'Details (optional)', phTaskDetails: 'Add steps, acceptance criteria, or a key link',
+    viewDetails: 'View details', hideDetails: 'Hide details',
     lblPrio: 'Priority', lblDue: 'Due date',
     lblLinkProj: 'Link to project (optional)', optNoProj: 'No project',
     btnAdd: 'Add', taskListTitle: 'Task list',
@@ -839,6 +852,7 @@ const I18N = {
     lblTags: 'Tags (separate with commas or spaces)', phTags: 'e.g. product, method',
     btnNote: 'Save note', myNotes: 'My notes', phSearch: 'Search text or tags',
     notesEmpty: 'Nothing here yet. Write one above.', notesNoMatch: 'No matching notes.',
+    logsHead: 'Work Logs', logsSub: 'Record work by date and link it to one or more projects.', logDate: 'Date', logContent: 'Log', logProjects: 'Linked projects (multiple allowed)', logAdd: 'Save log', logEmpty: 'No logs for this day.', logTimeline: 'Related log timeline', logCount: n => `${n} related logs`, logView: 'View log', logBack: 'Back to all logs',
 
     projHead: 'Projects',
     projSub: (run, st, done, linked) => `${run} running${st ? ` · <span style="color:var(--danger);font-weight:600">${st} blocked</span>` : ''} · ${done} completed · ${linked} linked task${linked>1?'s':''}`,
@@ -848,6 +862,7 @@ const I18N = {
     lblStage: 'Where it stands', phStage: 'e.g. Second round of visual review',
     lblNext: "What's next", phNext: 'e.g. Finalize by Friday and submit for scheduling',
     lblBlocker: "What's blocking it (leave blank if none)", phBlocker: 'e.g. Waiting on June channel definitions',
+    phProjDetails: 'Capture context, goals, key links, or decisions',
     btnAddProj: 'Add project', allProjTitle: 'All projects', projEmpty: 'No projects yet.',
     kNow: 'Now', kNext: 'Next', kBlock: 'Blocker', kUpdated: 'Updated',
     vUnset: 'not set', vNoBlock: 'not blocked',
@@ -1065,12 +1080,12 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 
 /* ---------- 状态 ---------- */
 let S = null;
-let ui = { view: 'focus', taskFilter: 'today', projFilter: '', tagFilter: '', noteQ: '', weekOff: 0, nudgeHidden: false,
-  drafts: { task: {}, note: {}, project: {} } };
+let ui = { view: 'focus', taskFilter: 'today', projFilter: '', tagFilter: '', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '',
+  drafts: { task: {}, note: {}, project: {} }, expandedDetails: {} };
 
 const blank = () => ({
   v: 1,
-  tasks: [], notes: [], projects: [],
+  tasks: [], notes: [], projects: [], logs: [],
   meta: { initialized: false, sample: false, itemsAtExport: 0, lastExport: null, lastOpen: TODAY(), created: Date.now() }
 });
 
@@ -1080,7 +1095,7 @@ async function load() {
   const d = await r.json();
   S = Object.assign(blank(), d);
   S.meta = Object.assign(blank().meta, d.meta || {});
-  ['tasks','notes','projects'].forEach(k => { if (!Array.isArray(S[k])) throw new Error(T('tLoadFail')); });
+  ['tasks','notes','projects','logs'].forEach(k => { if (!Array.isArray(S[k])) throw new Error(T('tLoadFail')); });
   normalize();
 }
 /* 数据兼容：补齐字段、清理指向已删项目的悬空引用 */
@@ -1091,6 +1106,7 @@ function normalize() {
     if (k.pid && !ids.has(k.pid)) k.pid = '';   // 项目已删，任务保留但解绑
     if (k.rolls === undefined) k.rolls = 0;
   });
+  S.logs.forEach(log => { log.projectIds = (log.projectIds || []).filter(id => ids.has(id)); });
 }
 let saveChain = Promise.resolve();
 function save() {
@@ -1104,7 +1120,7 @@ function save() {
   }).catch(e => toast(e.message || T('tSaveFail'), true));
   return saveChain;
 }
-const total = () => S.tasks.length + S.notes.length + S.projects.length;
+const total = () => S.tasks.length + S.notes.length + S.projects.length + S.logs.length;
 const unexported = () => Math.max(0, total() - (S.meta.itemsAtExport || 0));
 
 /* ---------- 示例数据 ---------- */
@@ -1196,6 +1212,7 @@ const NAV = [
   { k: 'tasks',  n: T('navTasks'), i: 'task'  },
   { k: 'notes',  n: T('navNotes'), i: 'bulb'  },
   { k: 'projects', n: T('navProjects'), i: 'proj' },
+  { k: 'logs', n: T('navLogs'), i: 'bulb' },
   { k: 'review', n: T('navReview'), i: 'chart' },
   { k: 'backup', n: T('navBackup'), i: 'db'    }
 ];
@@ -1206,7 +1223,7 @@ function render() {
   renderNav();
   $('hero').innerHTML = ui.view === 'focus' ? heroBanner() : '';
   renderNudge(); renderFocus();
-  const v = { focus: vFocus, tasks: vTasks, notes: vNotes, projects: vProjects, review: vReview, backup: vBackup }[ui.view];
+  const v = { focus: vFocus, tasks: vTasks, notes: vNotes, projects: vProjects, logs: vLogs, review: vReview, backup: vBackup }[ui.view];
   $('view').innerHTML = v();
   bind();
 }
@@ -1221,9 +1238,9 @@ function captureDrafts() {
       if (input) ui.drafts[name][key] = input.value;
     });
   };
-  capture('task', 'taskForm', [['title','tTitle'], ['prio','tPrio'], ['due','tDue'], ['pid','tPid']]);
+  capture('task', 'taskForm', [['title','tTitle'], ['prio','tPrio'], ['due','tDue'], ['pid','tPid'], ['details','tDetails']]);
   capture('note', 'noteForm', [['text','nText'], ['tags','nTags']]);
-  capture('project', 'projForm', [['name','pName'], ['status','pStat'], ['stage','pStage'], ['next','pNext'], ['blocker','pBlock']]);
+  capture('project', 'projForm', [['name','pName'], ['status','pStat'], ['stage','pStage'], ['next','pNext'], ['blocker','pBlock'], ['details','pDetails']]);
 }
 
 function renderNav() {
@@ -1384,12 +1401,22 @@ function taskRow(k) {
         ${pn ? `<button class="pill proj-link" data-act="filter-proj" data-id="${k.pid}" title="${T('filterByProj')}">${I.proj}${esc(pn)}</button>` : ''}
         ${k.rolls ? `<span class="pill warn">${T('rollsPill', k.rolls)}</span>` : ''}
         ${k.carried === TODAY() && !k.done ? `<span class="pill gray">${T('carriedPill')}</span>` : ''}
-      </div></div>
+      </div>${detailsBlock(k, false)}</div>
     <div class="it-act">
       ${!k.done ? `<button class="ico-btn" data-act="tomorrow" data-id="${k.id}" title="${T('ttPostpone')}">${I.fwd}</button>` : ''}
       <button class="ico-btn" data-act="edit-task" data-id="${k.id}" title="${T('ttEdit')}">${I.edit}</button>
       <button class="ico-btn red" data-act="del-task" data-id="${k.id}" title="${T('ttDelete')}">${I.trash}</button>
     </div></div>`;
+}
+
+function detailsBlock(item, summary) {
+  const text = String(item.details || '').trim();
+  if (!text) return '';
+  const expanded = !!ui.expandedDetails[item.id];
+  const body = esc(text).replace(/\n/g, '<br>');
+  return `<div class="details">${summary && !expanded ? `<div class="details-summary">${body}</div>` : ''}
+    <button class="details-toggle" data-act="toggle-details" data-id="${item.id}">${expanded ? T('hideDetails') : T('viewDetails')}</button>
+    ${expanded ? `<div class="details-body">${body}</div>` : ''}</div>`;
 }
 /* 带日期分组标题的列表（用于「即将到来」） */
 function groupedList(arr) {
@@ -1448,7 +1475,9 @@ function vTasks() {
             ${S.projects.map(p => `<option value="${p.id}"${(draft.pid || pf)===p.id?' selected':''}>${esc(p.name)}${p.status==='done'?(LANG==='en'?' (completed)':'（已完成）'):''}</option>`).join('')}
           </select></div>
           <button class="btn btn-primary" type="submit">${I.plus}${T('btnAdd')}</button>
-        </div></form></div></div>`
+        </div>
+        <div class="f" style="margin-top:11px"><label>${T('lblDetails')}</label><textarea id="tDetails" placeholder="${T('phTaskDetails')}" maxlength="1200">${esc(draft.details)}</textarea></div>
+        </form></div></div>`
   + `<div class="card"><div class="card-h">${I.task}<h2>${T('taskListTitle')}</h2>
       <div class="sp"><div class="seg">${segs.map(([k,n]) => `<button data-act="tfilter" data-f="${k}" class="${f===k?'on':''}">${n}</button>`).join('')}</div></div></div>
       ${openProjs.length ? `<div class="subbar">
@@ -1501,6 +1530,7 @@ function vNotes() {
 /* --- 项目 --- */
 function projCard(p) {
   const s = PSTAT[p.status] || PSTAT.active;
+  const logCount = S.logs.filter(log => (log.projectIds || []).includes(p.id)).length;
   return `<div class="proj ${p.status}">
     <div class="proj-h"><b>${esc(p.name)}</b>
       <div class="sp"><span class="pill ${s.c}">${s.n}</span>
@@ -1509,6 +1539,8 @@ function projCard(p) {
     <div class="kv"><span class="k">${T('kNow')}</span><span class="v${p.stage?'':' na'}">${esc(p.stage) || T('vUnset')}</span></div>
     <div class="kv"><span class="k">${T('kNext')}</span><span class="v${p.next?'':' na'}">${esc(p.next) || T('vUnset')}</span></div>
     <div class="kv"><span class="k">${T('kBlock')}</span><span class="v${p.blocker?' em':' na'}">${esc(p.blocker) || T('vNoBlock')}</span></div>
+    ${detailsBlock(p, true)}
+    <div class="kv"><span class="k">${T('logTimeline')}</span><button class="btn btn-sm" data-act="log-project" data-id="${p.id}">${T('logCount', logCount)}</button></div>
     ${projTasksBlock(p)}
     <div class="kv" style="padding-top:8px"><span class="k">${T('kUpdated')}</span><span class="v na" style="font-size:12px">${clock(p.updatedAt)}</span></div></div>`;
 }
@@ -1563,9 +1595,31 @@ function vProjects() {
         <div class="form">
           <div class="f grow"><label>${T('lblBlocker')}</label><input type="text" id="pBlock" value="${esc(draft.blocker)}" placeholder="${T('phBlocker')}" maxlength="160"></div>
           <button class="btn btn-primary" type="submit">${I.plus}${T('btnAddProj')}</button>
-        </div></form></div></div>`
+        </div>
+        <div class="f" style="margin-top:10px"><label>${T('lblDetails')}</label><textarea id="pDetails" placeholder="${T('phProjDetails')}" maxlength="1200">${esc(draft.details)}</textarea></div>
+        </form></div></div>`
   + `<div class="card"><div class="card-h">${I.proj}<h2>${T('allProjTitle')}</h2></div>
       <div class="card-b">${arr.length ? `<div class="projs">${arr.map(projCard).join('')}</div>` : emptyBox(T('projEmpty'),'proj')}</div></div>`;
+}
+
+/* --- 工作日志 --- */
+function logsFor(projectId, date) {
+  return S.logs.filter(log => (!projectId || (log.projectIds || []).includes(projectId)) && (!date || log.date === date))
+    .sort((a,b) => (b.date || '').localeCompare(a.date || '') || (b.updatedAt || 0) - (a.updatedAt || 0));
+}
+function vLogs() {
+  const project = ui.logProject ? projById(ui.logProject) : null;
+  const month = new Date(ui.logMonth + '-01T00:00:00');
+  const start = new Date(month); start.setDate(1 - start.getDay());
+  const cells = Array.from({length: 42}, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return ds(d); });
+  const dayLogs = logsFor(ui.logProject, project && !ui.logDate ? '' : ui.logDate);
+  const marked = new Set(logsFor(ui.logProject, '').map(log => log.date));
+  const title = project ? `${esc(project.name)} · ${T('logTimeline')}` : T('logsHead');
+  const canAddLog = !!ui.logDate && !dayLogs.length;
+  const logForm = canAddLog ? `<form id="logForm"><div class="f" style="margin-bottom:10px"><label>${T('logContent')}</label><textarea id="logText" maxlength="3000" required></textarea></div><div class="form"><div class="f grow"><label>${T('logProjects')}</label><select id="logProjects" multiple size="${Math.min(4, Math.max(2, S.projects.length))}">${S.projects.map(p => `<option value="${p.id}"${project&&p.id===project.id?' selected':''}>${esc(p.name)}</option>`).join('')}</select></div><button class="btn btn-primary" type="submit">${T('logAdd')}</button></div></form>` : '';
+  return head(title, project ? T('logCount', logsFor(project.id, '').length) : T('logsSub'), project ? `<button class="btn" data-act="logs-all">${T('logBack')}</button>` : '')
+  + `<div class="card"><div class="card-h"><h2>${ui.logMonth}</h2><div class="sp"><button class="btn btn-sm" data-act="log-month" data-d="-1">←</button><button class="btn btn-sm" data-act="log-month" data-d="1">→</button></div></div><div class="card-b"><div class="log-cal">${cells.map(date => `<button class="${date.slice(0,7)!==ui.logMonth?'out':''}${marked.has(date)?' has-log':''}${date===ui.logDate?' on':''}" data-act="log-date" data-id="${date}">${date.slice(-2).replace(/^0/,'')}</button>`).join('')}</div></div></div>`
+  + `<div class="card" style="margin-top:16px"><div class="card-h"><h2>${project && !ui.logDate ? T('logTimeline') : ui.logDate}</h2></div><div class="card-b">${logForm}<div class="log-list" style="margin-top:15px">${dayLogs.length ? dayLogs.map(log => `<button class="log-row" data-act="view-log" data-id="${log.id}"><b>${esc((log.projectIds||[]).map(projName).filter(Boolean).join(' · ') || '未关联项目')}</b><p>${esc(log.text)}</p></button>`).join('') : emptyBox(T('logEmpty'),'note')}</div></div></div>`;
 }
 
 /* --- 复盘 --- */
@@ -1755,6 +1809,12 @@ async function act(a, el) {
       return;
     }
     case 'tag': ui.tagFilter = el.dataset.t; ui.view = 'notes'; render(); return;
+    case 'log-project': ui.logProject = id; ui.logDate = ''; ui.logMonth = TODAY().slice(0,7); ui.view = 'logs'; render(); return;
+    case 'logs-all': ui.logProject = ''; ui.logDate = TODAY(); ui.logMonth = TODAY().slice(0,7); render(); return;
+    case 'log-date': ui.logDate = id; ui.logMonth = id.slice(0,7); render(); return;
+    case 'log-month': { const m = new Date(ui.logMonth + '-01T00:00:00'); m.setMonth(m.getMonth() + Number(el.dataset.d)); ui.logMonth = ds(m).slice(0,7); render(); return; }
+    case 'view-log': { const log = S.logs.find(x => x.id === id); if (log) openLog(log); return; }
+    case 'toggle-details': ui.expandedDetails[id] = !ui.expandedDetails[id]; render(); return;
     case 'week': ui.weekOff = el.dataset.d === '0' ? 0 : ui.weekOff + Number(el.dataset.d); if (ui.weekOff > 0) ui.weekOff = 0; render(); return;
 
     case 'toggle': case 'done': {
@@ -1823,7 +1883,7 @@ async function act(a, el) {
     case 'clear-sample': {
       if (!await confirmBox(T('mClearSampleTitle'), T('mClearSampleBody'), T('bkClearSample'), true)) return;
       // 示例数据在启动时已打上 _s 标记，这里精确清除，用户自己添加的不受影响
-      S.tasks = S.tasks.filter(x => !x._s); S.notes = S.notes.filter(x => !x._s); S.projects = S.projects.filter(x => !x._s);
+      S.tasks = S.tasks.filter(x => !x._s); S.notes = S.notes.filter(x => !x._s); S.projects = S.projects.filter(x => !x._s); S.logs = S.logs.filter(x => !x._s);
       S.meta.sample = false; S.meta.itemsAtExport = Math.min(S.meta.itemsAtExport, total());
       save(true); render(); toast(T('tSampleCleared'));
       return;
@@ -1901,6 +1961,7 @@ function openTaskEdit(id) {
       <option value="">${T('optNoProj')}</option>
       ${S.projects.map(p => `<option value="${p.id}"${k.pid===p.id?' selected':''}>${esc(p.name)}${p.status==='done'?(LANG==='en'?' (completed)':'（已完成）'):''}</option>`).join('')}
     </select></div>
+    <div class="f" style="margin-bottom:18px"><label>${T('lblDetails')}</label><textarea id="et_details" maxlength="1200">${esc(k.details)}</textarea></div>
     <div class="ma"><button class="btn" data-r="0">${T('cancel')}</button><button class="btn btn-primary" data-r="1">${I.save}${T('save')}</button></div></div>`;
   m.addEventListener('click', e => {
     if (e.target === m) return m.remove();
@@ -1911,6 +1972,7 @@ function openTaskEdit(id) {
       k.title = t;
       k.prio = Number(m.querySelector('#et_prio').value);
       k.due = m.querySelector('#et_due').value || '';
+      k.details = m.querySelector('#et_details').value.trim();
       const np = m.querySelector('#et_pid').value;
       if (np !== k.pid) { [k.pid, np].forEach(x => { const p = projById(x); if (p) p.updatedAt = Date.now(); }); }
       k.pid = np;
@@ -1934,6 +1996,7 @@ function openProjEdit(id) {
     <div class="f" style="margin-bottom:10px"><label>${T('lblStage')}</label><input type="text" id="ep_stage" value="${esc(p.stage)}" maxlength="160"></div>
     <div class="f" style="margin-bottom:10px"><label>${T('lblNext')}</label><input type="text" id="ep_next" value="${esc(p.next)}" maxlength="160"></div>
     <div class="f" style="margin-bottom:18px"><label>${T('kBlock')}</label><input type="text" id="ep_block" value="${esc(p.blocker)}" maxlength="160" placeholder="${T('vNoBlock')}"></div>
+    <div class="f" style="margin-bottom:18px"><label>${T('lblDetails')}</label><textarea id="ep_details" maxlength="1200">${esc(p.details)}</textarea></div>
     <div class="ma"><button class="btn" data-r="0">${T('cancel')}</button><button class="btn btn-primary" data-r="1">${I.save}${T('save')}</button></div></div>`;
   m.addEventListener('click', e => {
     if (e.target === m) return m.remove();
@@ -1941,11 +2004,26 @@ function openProjEdit(id) {
     if (b.dataset.r === '1') {
       const g = k => m.querySelector('#ep_' + k).value.trim();
       const nm = g('name'); if (!nm) { toast(T('tNeedProjNameEmpty'), true); return; }
-      p.name = nm; p.stage = g('stage'); p.next = g('next'); p.blocker = g('block');
+      p.name = nm; p.stage = g('stage'); p.next = g('next'); p.blocker = g('block'); p.details = g('details');
       p.status = m.querySelector('#ep_stat').value; p.updatedAt = Date.now();
       save(true); toast(T('tSaved'));
     }
     m.remove(); render();
+  });
+  document.body.appendChild(m);
+}
+
+function openLog(log) {
+  const m = document.createElement('div'); m.className = 'mask';
+  m.innerHTML = `<div class="modal" style="max-width:560px"><h3>${T('logView')}</h3>
+    <div class="f" style="margin-bottom:10px"><label>${T('logDate')}</label><input id="el_date" type="date" value="${esc(log.date)}"></div>
+    <div class="f" style="margin-bottom:10px"><label>${T('logContent')}</label><textarea id="el_text" maxlength="3000">${esc(log.text)}</textarea></div>
+    <div class="f" style="margin-bottom:18px"><label>${T('logProjects')}</label><select id="el_projects" multiple size="${Math.min(4, Math.max(2, S.projects.length))}">${S.projects.map(p => `<option value="${p.id}"${(log.projectIds||[]).includes(p.id)?' selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
+    <div class="ma"><button class="btn" data-r="0">${T('cancel')}</button><button class="btn btn-danger" data-r="1">${T('del')}</button><button class="btn btn-primary" data-r="2">${T('save')}</button></div></div>`;
+  m.addEventListener('click', e => {
+    const b = e.target.closest('[data-r]'); if (e.target === m || b?.dataset.r === '0') { m.remove(); return; }
+    if (b?.dataset.r === '1') { S.logs = S.logs.filter(x => x.id !== log.id); save(); m.remove(); render(); return; }
+    if (b?.dataset.r === '2') { const text = m.querySelector('#el_text').value.trim(); if (!text) return; log.date = m.querySelector('#el_date').value || log.date; log.text = text; log.projectIds = [...m.querySelector('#el_projects').selectedOptions].map(x => x.value); log.updatedAt = Date.now(); save(); m.remove(); render(); }
   });
   document.body.appendChild(m);
 }
@@ -1958,7 +2036,7 @@ function bind() {
     const v = $('tTitle').value.trim();
     if (!v) { toast(T('tNeedContent'), true); return; }
     const pid = $('tPid') ? $('tPid').value : '';
-    S.tasks.unshift({ id: uid(), title: v, prio: Number($('tPrio').value), due: $('tDue').value || '', done: false, pid: pid, createdAt: Date.now(), doneAt: null, rolls: 0 });
+    S.tasks.unshift({ id: uid(), title: v, prio: Number($('tPrio').value), due: $('tDue').value || '', done: false, pid: pid, details: $('tDetails').value.trim(), createdAt: Date.now(), doneAt: null, rolls: 0 });
     if (pid) { const p = projById(pid); if (p) p.updatedAt = Date.now(); }
     // 加到未来的任务，自动跳到「即将到来」，否则留在今天
     const due = $('tDue').value || '';
@@ -1987,9 +2065,15 @@ function bind() {
     if (!v) { toast(T('tNeedProjName'), true); return; }
     const nid = uid();
     S.projects.unshift({ id: nid, name: v, stage: $('pStage').value.trim(), next: $('pNext').value.trim(),
-      blocker: $('pBlock').value.trim(), status: $('pStat').value, updatedAt: Date.now() });
+      blocker: $('pBlock').value.trim(), details: $('pDetails').value.trim(), status: $('pStat').value, updatedAt: Date.now() });
     ui.drafts.project = {};
     save(true); render(); toast(T('tProjAdded'));
+  };
+  const lf = $('logForm');
+  if (lf) lf.onsubmit = e => {
+    e.preventDefault(); const text = $('logText').value.trim(); if (!text) return;
+    S.logs.unshift({ id: uid(), date: ui.logDate || TODAY(), text, projectIds: [...$('logProjects').selectedOptions].map(x => x.value), createdAt: Date.now(), updatedAt: Date.now() });
+    save(true); render(); toast(T('tSaved'));
   };
   const q = $('nQ');
   if (q) {

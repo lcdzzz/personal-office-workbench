@@ -5,7 +5,7 @@ A lightweight, local-first personal workbench for tracking tasks, notes, and pro
 ## Features
 
 - Focus view for the work that needs attention now
-- Task, note, and project management
+- Task, note, project, and work-log management
 - JSON data stored locally, not in a cloud service
 - ZIP export, preview, merge, and restore
 - Atomic writes with backup files and generation checks to avoid silently losing inconsistent data
@@ -38,19 +38,32 @@ The launcher starts a server on `http://127.0.0.1:8799` and opens the workbench 
 
 Only loopback addresses are accepted, so the server is not exposed to your network.
 
+## Stop
+
+The local server can be stopped when you no longer need it:
+
+```bash
+chmod +x shutdown.sh
+./shutdown.sh
+```
+
+The shutdown script only stops the `server.py` process started from this workbench folder. It refuses to stop a process when a stale PID file points elsewhere.
+
 ## Data and backups
 
 Your runtime data is kept outside the checkout in:
 
 `~/Library/Application Support/PersonalOfficeWorkbench/`
 
-It contains `tasks.json`, `notes.json`, `projects.json`, and `meta.json`. These files are intentionally not part of this repository. Use the **Backup** view in the application to export a ZIP before moving computers or making major changes.
+It contains `tasks.json`, `notes.json`, `projects.json`, `logs.json`, and `meta.json`. These files are intentionally not part of this repository. Use the **Backup** view in the application to export a ZIP before moving computers or making major changes.
 
 ## Development checks
 
 ```bash
 python3 -m py_compile server.py
 bash -n start.sh
+bash -n shutdown.sh
+bash shutdown_test.sh
 node smoke_test.cjs
 ```
 

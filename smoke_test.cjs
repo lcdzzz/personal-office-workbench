@@ -68,7 +68,7 @@ function run(label, seedState) {
 
     // 走一遍所有视图切换
     const before = errors.length;
-    ['focus', 'tasks', 'notes', 'projects', 'review', 'backup'].forEach(k => {
+    ['focus', 'tasks', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
       const b = d.querySelector('#navScroll [data-nav="' + k + '"]');
       if (b) b.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     });
@@ -82,14 +82,58 @@ function run(label, seedState) {
     d.getElementById('pName').value = '项目草稿';
     d.getElementById('pStage').value = '方案评审中';
     d.getElementById('pNext').value = '约产品确认范围';
+    d.getElementById('pDetails').value = '项目背景和关键决策';
     switchTo('notes');
     switchTo('projects');
     o.projectDraftRetained = d.getElementById('pName').value === '项目草稿'
       && d.getElementById('pStage').value === '方案评审中'
-      && d.getElementById('pNext').value === '约产品确认范围';
+      && d.getElementById('pNext').value === '约产品确认范围'
+      && d.getElementById('pDetails').value === '项目背景和关键决策';
+    d.getElementById('projForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+
+    switchTo('tasks');
+    d.getElementById('tTitle').value = '带详情的待办';
+    d.getElementById('tDetails').value = '从入口 A 操作，完成后核对结果';
+    d.getElementById('taskForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    o.detailsSaved = apiState.projects.some(p => p.name === '项目草稿' && p.details === '项目背景和关键决策')
+      && apiState.tasks.some(t => t.title === '带详情的待办' && t.details === '从入口 A 操作，完成后核对结果');
+    const taskDetailsToggle = d.querySelector('[data-act="toggle-details"]');
+    o.taskDetailsToggle = !!taskDetailsToggle;
+    if (taskDetailsToggle) taskDetailsToggle.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.taskDetailsShown = d.getElementById('view').textContent.includes('从入口 A 操作，完成后核对结果');
+    switchTo('projects');
+    const projectDetailsToggle = d.querySelector('[data-act="toggle-details"]');
+    o.projectDetailsToggle = !!projectDetailsToggle;
+    if (projectDetailsToggle) projectDetailsToggle.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.projectDetailsShown = d.getElementById('view').textContent.includes('项目背景和关键决策');
+
+    switchTo('logs');
+    d.getElementById('logText').value = '同一条日志关联多个项目';
+    [...d.getElementById('logProjects').options].forEach(option => option.selected = true);
+    d.getElementById('logForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    o.logSaved = apiState.logs.some(log => log.text === '同一条日志关联多个项目' && log.projectIds.length === 1);
+    o.logAddFormHidden = !d.getElementById('logForm');
+    o.logCalendarEntry = !!d.querySelector('[data-act="log-date"].has-log');
+    switchTo('projects');
+    const timeline = d.querySelector('[data-act="log-project"]');
+    o.projectTimelineEntry = !!timeline;
+    if (timeline) timeline.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.projectTimelineShown = d.getElementById('view').textContent.includes('同一条日志关联多个项目');
+    const logRow = d.querySelector('[data-act="view-log"]');
+    if (logRow) logRow.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.logEditControls = !!d.getElementById('el_text') && !!d.getElementById('el_projects');
+    if (o.logEditControls) {
+      d.getElementById('el_text').value = '同一条日志继续编辑';
+      d.querySelector('[data-r="2"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      o.logEdited = apiState.logs.filter(log => log.text === '同一条日志继续编辑').length === 1
+        && apiState.logs.length === 1;
+    }
 
     // 逐个视图单独渲染，检查备份页导出/导入卡片
-    ['focus', 'tasks', 'notes', 'projects', 'review', 'backup'].forEach(k => {
+    ['focus', 'tasks', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
       const b = d.querySelector('#navScroll [data-nav="' + k + '"]');
       if (b) b.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
       o[k + 'Html'] = d.getElementById('view').innerHTML.length;
@@ -141,13 +185,21 @@ function run(label, seedState) {
   const fail = [];
   if (A.errors.length) fail.push('A 有 JS 错误');
   if (B.errors.length) fail.push('B 有 JS 错误');
-  if (A.navItems !== 6) fail.push('A 导航项数异常');
+  if (A.navItems !== 7) fail.push('A 导航项数异常');
   if (!A.apiLoaded) fail.push('A 未加载本地 API 数据');
   if (A.viewLen === 0) fail.push('A 首页未渲染');
   if (!A.backupHasExportBtn || !A.backupHasImportInput) fail.push('A 备份页缺导出/导入');
   if (!B.nudge.includes('该导出一次备份了')) fail.push('B 未触发导出提醒');
   if (!B.footAfterExport.includes('上次备份')) fail.push('B 导出后 footer 未更新');
   if (!A.projectDraftRetained || !B.projectDraftRetained) fail.push('切换标签后项目草稿丢失');
+  if (!A.detailsSaved || !B.detailsSaved) fail.push('项目或待办详情未保存');
+  if (!A.taskDetailsToggle || !B.taskDetailsToggle || !A.taskDetailsShown || !B.taskDetailsShown) fail.push('待办详情不能按需展开');
+  if (!A.projectDetailsToggle || !B.projectDetailsToggle || !A.projectDetailsShown || !B.projectDetailsShown) fail.push('项目详情不能按需展开');
+  if (!A.logSaved || !B.logSaved || !A.logCalendarEntry || !B.logCalendarEntry) fail.push('日志未保存或未出现在日历入口');
+  if (!A.logAddFormHidden || !B.logAddFormHidden) fail.push('已有日志日期仍显示重复新增表单');
+  if (!A.projectTimelineEntry || !B.projectTimelineEntry || !A.projectTimelineShown || !B.projectTimelineShown) fail.push('项目时间线未显示关联日志');
+  if (!A.logEditControls || !B.logEditControls) fail.push('日志详情不能编辑正文或关联项目');
+  if (!A.logEdited || !B.logEdited) fail.push('日志编辑后未原地保存或产生重复记录');
   console.log('\n================ 结论 ================');
   console.log(fail.length ? '❌ 未通过：' + fail.join('；') : '✅ 全部通过');
   process.exit(fail.length ? 1 : 0);

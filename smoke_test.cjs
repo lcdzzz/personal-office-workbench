@@ -113,23 +113,33 @@ function run(label, seedState) {
     [...d.getElementById('logProjects').options].forEach(option => option.selected = true);
     d.getElementById('logForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
     await new Promise(resolve => setTimeout(resolve, 20));
-    o.logSaved = apiState.logs.some(log => log.text === '同一条日志关联多个项目' && log.projectIds.length === 1);
-    o.logAddFormHidden = !d.getElementById('logForm');
+    o.logSaved = apiState.logs.some(log => log.text === '同一条日志关联多个项目' && log.projectIds.length === 1 && log.hasContent === true);
+    o.logAddFormHidden = false;
+    o.logReadOnly = d.getElementById('logText').readOnly && d.querySelector('[data-act="delete-log"]') && d.querySelector('[data-act="delete-log"]').textContent === '删除';
     o.logCalendarEntry = !!d.querySelector('[data-act="log-date"].has-log');
     switchTo('projects');
     const timeline = d.querySelector('[data-act="log-project"]');
     o.projectTimelineEntry = !!timeline;
     if (timeline) timeline.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     o.projectTimelineShown = d.getElementById('view').textContent.includes('同一条日志关联多个项目');
-    const logRow = d.querySelector('[data-act="view-log"]');
-    if (logRow) logRow.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
-    o.logEditControls = !!d.getElementById('el_text') && !!d.getElementById('el_projects');
+    switchTo('logs');
+    const savedDateButton = d.querySelector('[data-act="log-date"].has-log');
+    if (savedDateButton) savedDateButton.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.logEditControls = !!d.getElementById('logText') && !!d.getElementById('logProjects');
     if (o.logEditControls) {
-      d.getElementById('el_text').value = '同一条日志继续编辑';
-      d.querySelector('[data-r="2"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      d.getElementById('logForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+      d.getElementById('logText').value = '同一条日志继续编辑';
+      d.getElementById('logForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
       await new Promise(resolve => setTimeout(resolve, 20));
       o.logEdited = apiState.logs.filter(log => log.text === '同一条日志继续编辑').length === 1
         && apiState.logs.length === 1;
+      w.confirm = () => false;
+      d.querySelector('[data-act="delete-log"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      o.logDeleteCancel = apiState.logs.length === 1 && !!d.querySelector('[data-act="delete-log"]');
+      w.confirm = () => true;
+      d.querySelector('[data-act="delete-log"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      o.logDeleted = apiState.logs.length === 0 && !d.querySelector('[data-act="delete-log"]');
     }
 
     // 逐个视图单独渲染，检查备份页导出/导入卡片
@@ -196,10 +206,12 @@ function run(label, seedState) {
   if (!A.taskDetailsToggle || !B.taskDetailsToggle || !A.taskDetailsShown || !B.taskDetailsShown) fail.push('待办详情不能按需展开');
   if (!A.projectDetailsToggle || !B.projectDetailsToggle || !A.projectDetailsShown || !B.projectDetailsShown) fail.push('项目详情不能按需展开');
   if (!A.logSaved || !B.logSaved || !A.logCalendarEntry || !B.logCalendarEntry) fail.push('日志未保存或未出现在日历入口');
-  if (!A.logAddFormHidden || !B.logAddFormHidden) fail.push('已有日志日期仍显示重复新增表单');
+  if (A.logAddFormHidden || B.logAddFormHidden) fail.push('日志输入框没有保留为单条保存/修改入口');
   if (!A.projectTimelineEntry || !B.projectTimelineEntry || !A.projectTimelineShown || !B.projectTimelineShown) fail.push('项目时间线未显示关联日志');
   if (!A.logEditControls || !B.logEditControls) fail.push('日志详情不能编辑正文或关联项目');
+  if (!A.logReadOnly || !B.logReadOnly) fail.push('保存后的日志不是默认只读');
   if (!A.logEdited || !B.logEdited) fail.push('日志编辑后未原地保存或产生重复记录');
+  if (!A.logDeleteCancel || !B.logDeleteCancel || !A.logDeleted || !B.logDeleted) fail.push('日志删除缺少确认或确认后未删除');
   console.log('\n================ 结论 ================');
   console.log(fail.length ? '❌ 未通过：' + fail.join('；') : '✅ 全部通过');
   process.exit(fail.length ? 1 : 0);

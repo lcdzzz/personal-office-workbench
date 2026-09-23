@@ -98,11 +98,24 @@ function run(label, seedState) {
     await new Promise(resolve => setTimeout(resolve, 20));
     o.detailsSaved = apiState.projects.some(p => p.name === '项目草稿' && p.details === '项目背景和关键决策')
       && apiState.tasks.some(t => t.title === '带详情的待办' && t.details === '从入口 A 操作，完成后核对结果');
+    const draftedProject = apiState.projects.find(p => p.name === '项目草稿');
+    o.newProjectHasInitialProgress = !!(draftedProject && Array.isArray(draftedProject.progresses)
+      && draftedProject.progresses.length === 1
+      && draftedProject.progresses[0].stage === '方案评审中'
+      && draftedProject.progresses[0].next === '约产品确认范围'
+      && draftedProject.progresses[0].predecessorId === '');
     const taskDetailsToggle = d.querySelector('[data-act="toggle-details"]');
     o.taskDetailsToggle = !!taskDetailsToggle;
     if (taskDetailsToggle) taskDetailsToggle.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     o.taskDetailsShown = d.getElementById('view').textContent.includes('从入口 A 操作，完成后核对结果');
     switchTo('projects');
+    o.projectListIsCompact = !d.querySelector('[data-act="toggle-progress-map"]')
+      && !!d.querySelector('[data-act="open-project-detail"]');
+    const detailEntry = d.querySelector('[data-act="open-project-detail"]');
+    if (detailEntry) detailEntry.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.projectDetailPage = !!d.querySelector('[data-act="back-projects"]')
+      && !!d.querySelector('.progress-lanes')
+      && !d.querySelector('[data-act="toggle-progress-map"]');
     const projectDetailsToggle = d.querySelector('[data-act="toggle-details"]');
     o.projectDetailsToggle = !!projectDetailsToggle;
     if (projectDetailsToggle) projectDetailsToggle.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
@@ -118,10 +131,39 @@ function run(label, seedState) {
     o.logReadOnly = d.getElementById('logText').readOnly && d.querySelector('[data-act="delete-log"]') && d.querySelector('[data-act="delete-log"]').textContent === '删除';
     o.logCalendarEntry = !!d.querySelector('[data-act="log-date"].has-log');
     switchTo('projects');
+    const timelineDetail = d.querySelector('[data-act="open-project-detail"]');
+    if (timelineDetail) timelineDetail.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     const timeline = d.querySelector('[data-act="log-project"]');
     o.projectTimelineEntry = !!timeline;
     if (timeline) timeline.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     o.projectTimelineShown = d.getElementById('view').textContent.includes('同一条日志关联多个项目');
+    switchTo('projects');
+    const modeSelect = d.getElementById('pMode');
+    if (modeSelect) { modeSelect.value = 'update'; modeSelect.dispatchEvent(new w.Event('change', { bubbles: true })); }
+    o.progressUpdateControls = !!d.getElementById('pMode') && !!d.getElementById('pExisting') && !!d.getElementById('pPredecessor');
+    if (o.progressUpdateControls) {
+      const predecessor = d.getElementById('pPredecessor');
+      predecessor.value = predecessor.options[1].value;
+      predecessor.dispatchEvent(new w.Event('change', { bubbles: true }));
+      o.progressTextPrefilled = d.getElementById('pStage').value === '约产品确认范围';
+      d.getElementById('pStage').value = '范围已确认，进入排期';
+      d.getElementById('pNext').value = '创建研发任务';
+      d.getElementById('projForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      const updatedProject = apiState.projects.find(p => p.name === '项目草稿');
+      o.progressLinkedAfterTextEdit = !!(updatedProject && updatedProject.progresses.length === 2
+        && updatedProject.progresses.some(x => x.stage === '范围已确认，进入排期' && x.next === '创建研发任务' && x.predecessorId));
+      const mapDetail = d.querySelector('[data-act="open-project-detail"]');
+      if (mapDetail) mapDetail.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      const mapButton = d.querySelector('[data-act="toggle-progress-map"]');
+      if (mapButton) mapButton.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      o.progressMapShown = d.getElementById('view').textContent.includes('范围已确认，进入排期')
+        && !!d.querySelector('[data-act="edit-progress"]');
+      const deleteSource = d.querySelector('[data-act="del-progress"]');
+      if (deleteSource) { w.confirm = () => true; deleteSource.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); await new Promise(resolve => setTimeout(resolve, 20)); }
+      const afterDeletion = apiState.projects.find(p => p.name === '项目草稿');
+      o.progressFollowerDetached = !!(afterDeletion && afterDeletion.progresses.length === 1 && afterDeletion.progresses[0].predecessorId === '');
+    }
     switchTo('logs');
     const savedDateButton = d.querySelector('[data-act="log-date"].has-log');
     if (savedDateButton) savedDateButton.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
@@ -203,6 +245,12 @@ function run(label, seedState) {
   if (!B.footAfterExport.includes('上次备份')) fail.push('B 导出后 footer 未更新');
   if (!A.projectDraftRetained || !B.projectDraftRetained) fail.push('切换标签后项目草稿丢失');
   if (!A.detailsSaved || !B.detailsSaved) fail.push('项目或待办详情未保存');
+  if (!A.newProjectHasInitialProgress || !B.newProjectHasInitialProgress) fail.push('新项目没有生成首条独立跟进记录');
+  if (!A.projectListIsCompact || !B.projectListIsCompact || !A.projectDetailPage || !B.projectDetailPage) fail.push('项目详情没有移到可返回的独立页面');
+  if (!A.progressUpdateControls || !B.progressUpdateControls) fail.push('没有已有项目的跟进记录入口');
+  if (!A.progressTextPrefilled || !B.progressTextPrefilled || !A.progressLinkedAfterTextEdit || !B.progressLinkedAfterTextEdit) fail.push('已有项目跟进记录没有保留关联或自动带入文字');
+  if (!A.progressMapShown || !B.progressMapShown) fail.push('项目进展关系图没有显示关联记录');
+  if (!A.progressFollowerDetached || !B.progressFollowerDetached) fail.push('删除前置记录后，后续记录没有成为独立分支');
   if (!A.taskDetailsToggle || !B.taskDetailsToggle || !A.taskDetailsShown || !B.taskDetailsShown) fail.push('待办详情不能按需展开');
   if (!A.projectDetailsToggle || !B.projectDetailsToggle || !A.projectDetailsShown || !B.projectDetailsShown) fail.push('项目详情不能按需展开');
   if (!A.logSaved || !B.logSaved || !A.logCalendarEntry || !B.logCalendarEntry) fail.push('日志未保存或未出现在日历入口');

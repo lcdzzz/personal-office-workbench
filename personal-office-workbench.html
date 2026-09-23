@@ -388,6 +388,7 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
   border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;background:var(--surface);
   box-shadow:var(--sh-1);transition:box-shadow .2s,transform .2s,border-color .2s;position:relative;overflow:hidden;
 }
+.progress-map{margin:18px 0;padding:18px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);overflow-x:auto}.progress-lanes{display:grid;gap:24px;width:100%}.progress-lane{min-width:0;display:flex;flex-direction:column;gap:12px;padding:4px 2px}.progress-node{width:100%;padding:12px;border:1px solid #cfe5e1;border-radius:9px;background:#fff;box-shadow:var(--sh-1);font-size:12px;color:var(--text-2)}.progress-node-h{display:flex;gap:7px;align-items:flex-start;color:var(--text)}.progress-node-h b{flex:1;word-break:break-word}.progress-node-h .sp{display:flex}.progress-node small{display:block;margin-top:6px;color:var(--text-4)}.progress-arrow{height:22px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;font-weight:700}.project-list-card{width:100%;min-height:142px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}.project-list-card:hover{border-color:var(--accent);background:var(--accent-soft2)}.project-list-card .proj-h{width:100%}.project-list-meta{font-size:12px;color:var(--text-3)}.project-list-open{font-size:12px;font-weight:700;color:var(--accent-dark)}.project-detail-layout{width:100%}.project-detail-layout .proj{width:100%}
 .proj::after{content:"";position:absolute;left:0;right:0;top:0;height:2.5px;background:linear-gradient(90deg,var(--accent),var(--cyan))}
 .proj:hover{box-shadow:var(--sh-3);transform:translateY(-1.5px)}
 .proj.blocked{border-color:var(--danger-line);background:linear-gradient(180deg,#fffbfb,#fff)}
@@ -665,6 +666,7 @@ const I18N = {
     projHead: '项目跟进',
     projSub: (run, st, done, linked) => `${run} 个在跑${st ? ` · <span style="color:var(--danger);font-weight:600">${st} 个卡住</span>` : ''} · 已完成 ${done} 个 · 挂了 ${linked} 条待办`,
     newProj: '新建项目', newProjHint: '卡住的项目会自动出现在最上面的「今天要处理的」',
+    projectModeNew: '新建项目', projectModeUpdate: '更新已有项目', lblProjectMode: '操作类型', lblExistingProject: '选择项目', lblPredecessor: '接在何处之后', independentBranch: '新增独立分支', progressCount: n => `${n} 条跟进记录`, progressMap: '查看进展关系图', projectDetail: '查看详情 →', editProgress: '编辑跟进记录', deleteProgress: '删除跟进记录', tAddedSuccess: '添加成功',
     lblProjName: '项目名', phProjName: '例如：首页改版',
     lblStatus: '状态', stActive: '进行中', stBlocked: '卡住了', stDone: '已完成',
     lblStage: '现在到哪一步', phStage: '例如：视觉稿第二轮评审中',
@@ -857,6 +859,7 @@ const I18N = {
     projHead: 'Projects',
     projSub: (run, st, done, linked) => `${run} running${st ? ` · <span style="color:var(--danger);font-weight:600">${st} blocked</span>` : ''} · ${done} completed · ${linked} linked task${linked>1?'s':''}`,
     newProj: 'New project', newProjHint: 'Blocked projects surface automatically in "Needs attention today"',
+    projectModeNew: 'New project', projectModeUpdate: 'Update existing project', lblProjectMode: 'Action', lblExistingProject: 'Project', lblPredecessor: 'Continue after', independentBranch: 'Start independent branch', progressCount: n => `${n} progress updates`, progressMap: 'View progress map', projectDetail: 'View details →', editProgress: 'Edit update', deleteProgress: 'Delete update', tAddedSuccess: 'Added successfully',
     lblProjName: 'Project name', phProjName: 'e.g. Homepage redesign',
     lblStatus: 'Status', stActive: 'Active', stBlocked: 'Blocked', stDone: 'Completed',
     lblStage: 'Where it stands', phStage: 'e.g. Second round of visual review',
@@ -1091,8 +1094,8 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 
 /* ---------- 状态 ---------- */
 let S = null;
-let ui = { view: 'focus', taskFilter: 'today', projFilter: '', tagFilter: '', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '',
-  drafts: { task: {}, note: {}, project: {} }, expandedDetails: {} };
+let ui = { view: 'focus', detailProjectId: '', taskFilter: 'today', projFilter: '', tagFilter: '', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '',
+  drafts: { task: {}, note: {}, project: {} }, expandedDetails: {}, progressMaps: {} };
 
 const blank = () => ({
   v: 1,
@@ -1118,6 +1121,7 @@ function normalize() {
     if (k.rolls === undefined) k.rolls = 0;
   });
   S.logs.forEach(log => { log.projectIds = (log.projectIds || []).filter(id => ids.has(id)); log.hasContent = log.hasContent !== false && !!String(log.text || '').trim(); });
+  S.projects.forEach(normalizeProgresses);
 }
 let saveChain = Promise.resolve();
 function save() {
@@ -1203,6 +1207,42 @@ const someday = () => S.tasks.filter(k => !k.done && !k.due).sort((a,b) => a.pri
 /* 项目关联 */
 const projById = id => S.projects.find(p => p.id === id);
 const projName = id => { const p = projById(id); return p ? p.name : ''; };
+const progressesFor = p => Array.isArray(p && p.progresses) ? p.progresses : [];
+const progressById = (p, id) => progressesFor(p).find(x => x.id === id);
+function normalizeProgresses(p) {
+  const at = p.updatedAt || Date.now();
+  if (!Array.isArray(p.progresses)) {
+    p.progresses = [{ id: uid(), stage: p.stage || '', next: p.next || '', predecessorId: '', createdAt: at, updatedAt: at }];
+  }
+  progressesFor(p).forEach(x => {
+    if (!x.id) x.id = uid();
+    x.stage = String(x.stage || ''); x.next = String(x.next || '');
+    x.predecessorId = String(x.predecessorId || '');
+    x.createdAt = x.createdAt || at; x.updatedAt = x.updatedAt || x.createdAt;
+  });
+  const ids = new Set(progressesFor(p).map(x => x.id));
+  progressesFor(p).forEach(x => {
+    if (!x.predecessorId || x.predecessorId === x.id || !ids.has(x.predecessorId) || !validPredecessor(p, x.id, x.predecessorId)) x.predecessorId = '';
+  });
+  syncProjectSummary(p);
+}
+function validPredecessor(p, recordId, predecessorId) {
+  if (!predecessorId) return true;
+  if (recordId === predecessorId || !progressById(p, predecessorId)) return false;
+  const seen = new Set([recordId]); let cursor = progressById(p, predecessorId);
+  while (cursor && cursor.predecessorId) {
+    if (seen.has(cursor.id)) return false;
+    seen.add(cursor.id); cursor = progressById(p, cursor.predecessorId);
+  }
+  return true;
+}
+function detachFollowers(p, recordId) {
+  progressesFor(p).forEach(x => { if (x.predecessorId === recordId) x.predecessorId = ''; });
+}
+function syncProjectSummary(p) {
+  const latest = progressesFor(p).slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+  if (latest) { p.stage = latest.stage; p.next = latest.next; }
+}
 const tasksOfProj = id => S.tasks.filter(k => k.pid === id);
 const projProgress = id => {
   const arr = tasksOfProj(id);
@@ -1234,7 +1274,7 @@ function render() {
   renderNav();
   $('hero').innerHTML = ui.view === 'focus' ? heroBanner() : '';
   renderNudge(); renderFocus();
-  const v = { focus: vFocus, tasks: vTasks, notes: vNotes, projects: vProjects, logs: vLogs, review: vReview, backup: vBackup }[ui.view];
+  const v = { focus: vFocus, tasks: vTasks, notes: vNotes, projects: vProjects, 'project-detail': vProjectDetail, logs: vLogs, review: vReview, backup: vBackup }[ui.view];
   $('view').innerHTML = v();
   bind();
 }
@@ -1251,7 +1291,12 @@ function captureDrafts() {
   };
   capture('task', 'taskForm', [['title','tTitle'], ['prio','tPrio'], ['due','tDue'], ['pid','tPid'], ['details','tDetails']]);
   capture('note', 'noteForm', [['text','nText'], ['tags','nTags']]);
-  capture('project', 'projForm', [['name','pName'], ['status','pStat'], ['stage','pStage'], ['next','pNext'], ['blocker','pBlock'], ['details','pDetails']]);
+  if (ui.resetProjectDraft) {
+    ui.drafts.project = {};
+    ui.resetProjectDraft = false;
+    return;
+  }
+  capture('project', 'projForm', [['mode','pMode'], ['existing','pExisting'], ['predecessor','pPredecessor'], ['name','pName'], ['status','pStat'], ['stage','pStage'], ['next','pNext'], ['blocker','pBlock'], ['details','pDetails']]);
 }
 
 function renderNav() {
@@ -1539,7 +1584,21 @@ function vNotes() {
 }
 
 /* --- 项目 --- */
-function projCard(p) {
+function progressMap(p) {
+  const childrenOf = id => progressesFor(p).filter(x => x.predecessorId === id);
+  const node = x => `<div class="progress-node"><div class="progress-node-h"><b>${esc(x.stage) || T('vUnset')}</b><span class="sp"><button class="ico-btn" data-act="edit-progress" data-pid="${p.id}" data-id="${x.id}" title="${T('editProgress')}">${I.edit}</button><button class="ico-btn red" data-act="del-progress" data-pid="${p.id}" data-id="${x.id}" title="${T('deleteProgress')}">${I.trash}</button></span></div><span>${T('kNext')}：${esc(x.next) || T('vUnset')}</span><small>${clock(x.updatedAt)}</small></div>`;
+  const lanesFrom = x => {
+    const children = childrenOf(x.id);
+    if (!children.length) return [[x]];
+    return children.flatMap(child => lanesFrom(child).map(lane => [x, ...lane]));
+  };
+  const roots = progressesFor(p).filter(x => !x.predecessorId);
+  const lanes = roots.flatMap(lanesFrom);
+  return `<div class="progress-map"><div class="progress-lanes" style="grid-template-columns:repeat(${Math.max(1, lanes.length)},minmax(250px,1fr));min-width:${Math.max(1, lanes.length) * 250}px">${lanes.map(lane => `<div class="progress-lane">${lane.map((x, i) => `${i ? '<div class="progress-arrow">↓</div>' : ''}${node(x)}`).join('')}</div>`).join('')}</div></div>`;
+}
+function projCard(p, options = {}) {
+  const showMapControl = options.showMapControl !== false;
+  const detail = !!options.detail;
   const s = PSTAT[p.status] || PSTAT.active;
   const logCount = S.logs.filter(log => (log.projectIds || []).includes(p.id)).length;
   return `<div class="proj ${p.status}">
@@ -1547,13 +1606,19 @@ function projCard(p) {
       <div class="sp"><span class="pill ${s.c}">${s.n}</span>
         <button class="ico-btn" data-act="edit-proj" data-id="${p.id}" title="${T('ttEdit')}">${I.edit}</button>
         <button class="ico-btn red" data-act="del-proj" data-id="${p.id}" title="${T('ttDelete')}">${I.trash}</button></div></div>
-    <div class="kv"><span class="k">${T('kNow')}</span><span class="v${p.stage?'':' na'}">${esc(p.stage) || T('vUnset')}</span></div>
-    <div class="kv"><span class="k">${T('kNext')}</span><span class="v${p.next?'':' na'}">${esc(p.next) || T('vUnset')}</span></div>
+    ${!detail ? `<div class="kv"><span class="k">${T('kNow')}</span><span class="v${p.stage?'':' na'}">${esc(p.stage) || T('vUnset')}</span></div>
+    <div class="kv"><span class="k">${T('kNext')}</span><span class="v${p.next?'':' na'}">${esc(p.next) || T('vUnset')}</span></div>` : ''}
+    <div class="kv"><span class="k">${T('progressCount', progressesFor(p).length)}</span>${showMapControl ? `<button class="btn btn-sm" data-act="toggle-progress-map" data-id="${p.id}">${T('progressMap')}</button>` : ''}</div>
+    ${detail || (showMapControl && ui.progressMaps[p.id]) ? progressMap(p) : ''}
     <div class="kv"><span class="k">${T('kBlock')}</span><span class="v${p.blocker?' em':' na'}">${esc(p.blocker) || T('vNoBlock')}</span></div>
     ${detailsBlock(p, true)}
     <div class="kv"><span class="k">${T('logTimeline')}</span><button class="btn btn-sm" data-act="log-project" data-id="${p.id}">${T('logCount', logCount)}</button></div>
     ${projTasksBlock(p)}
     <div class="kv" style="padding-top:8px"><span class="k">${T('kUpdated')}</span><span class="v na" style="font-size:12px">${clock(p.updatedAt)}</span></div></div>`;
+}
+function projectListCard(p) {
+  const s = PSTAT[p.status] || PSTAT.active;
+  return `<button class="proj project-list-card" data-act="open-project-detail" data-id="${p.id}"><span class="proj-h"><b>${esc(p.name)}</b><span class="pill ${s.c}">${s.n}</span></span><span class="project-list-meta">${T('progressCount', progressesFor(p).length)} · ${T('kUpdated')} ${clock(p.updatedAt)}</span><span class="project-list-open">${T('projectDetail')}</span></button>`;
 }
 /* 项目卡里的「关联待办」区块：进度条 + 未完成任务 + 快捷加任务 */
 function projTasksBlock(p) {
@@ -1585,6 +1650,9 @@ function projTasksBlock(p) {
 }
 function vProjects() {
   const draft = ui.drafts.project;
+  const mode = draft.mode || 'new';
+  const selected = projById(draft.existing) || S.projects[0];
+  const predecessors = selected ? progressesFor(selected) : [];
   const arr = S.projects.slice().sort((a,b) => {
     const r = { blocked: 0, active: 1, done: 2 };
     return (r[a.status] - r[b.status]) || (b.updatedAt - a.updatedAt);
@@ -1592,25 +1660,31 @@ function vProjects() {
   const st = stuck().length;
   const linked = S.tasks.filter(k => k.pid && projById(k.pid)).length;
   return head(T('projHead'), T('projSub', S.projects.filter(p=>p.status!=='done').length, st, S.projects.filter(p=>p.status==='done').length, linked))
-  + `<div class="card"><div class="card-h">${I.plus}<h2>${T('newProj')}</h2><span class="hint">${T('newProjHint')}</span></div><div class="card-b">
+  + `<div class="card"><div class="card-h">${I.plus}<h2>${mode === 'new' ? T('newProj') : T('projectModeUpdate')}</h2><span class="hint">${T('newProjHint')}</span></div><div class="card-b">
       <form id="projForm">
-        <div class="form" style="margin-bottom:10px">
+        <div class="form" style="margin-bottom:10px"><div class="f grow"><label>${T('lblProjectMode')}</label><select id="pMode"><option value="new"${mode==='new'?' selected':''}>${T('projectModeNew')}</option><option value="update"${mode==='update'?' selected':''}>${T('projectModeUpdate')}</option></select></div></div>
+        ${mode === 'new' ? `<div class="form" style="margin-bottom:10px">
           <div class="f grow"><label>${T('lblProjName')}</label><input type="text" id="pName" value="${esc(draft.name)}" placeholder="${T('phProjName')}" maxlength="80" required></div>
           <div class="f" style="flex:0 0 148px"><label>${T('lblStatus')}</label><select id="pStat">
             <option value="active"${(!draft.status || draft.status==='active')?' selected':''}>${T('stActive')}</option><option value="blocked"${draft.status==='blocked'?' selected':''}>${T('stBlocked')}</option><option value="done"${draft.status==='done'?' selected':''}>${T('stDone')}</option></select></div>
-        </div>
+        </div>` : `<div class="form" style="margin-bottom:10px"><div class="f grow"><label>${T('lblExistingProject')}</label><select id="pExisting">${S.projects.map(p => `<option value="${p.id}"${selected&&p.id===selected.id?' selected':''}>${esc(p.name)}</option>`).join('')}</select></div><div class="f grow"><label>${T('lblPredecessor')}</label><select id="pPredecessor"><option value="">${T('independentBranch')}</option>${predecessors.map(x => `<option value="${x.id}"${draft.predecessor===x.id?' selected':''}>${T('kNext')}：${esc(x.next || T('vUnset'))}</option>`).join('')}</select></div></div>`}
         <div class="form" style="margin-bottom:10px">
           <div class="f grow"><label>${T('lblStage')}</label><input type="text" id="pStage" value="${esc(draft.stage)}" placeholder="${T('phStage')}" maxlength="160"></div>
           <div class="f grow"><label>${T('lblNext')}</label><input type="text" id="pNext" value="${esc(draft.next)}" placeholder="${T('phNext')}" maxlength="160"></div>
         </div>
-        <div class="form">
+        ${mode === 'new' ? `<div class="form">
           <div class="f grow"><label>${T('lblBlocker')}</label><input type="text" id="pBlock" value="${esc(draft.blocker)}" placeholder="${T('phBlocker')}" maxlength="160"></div>
-          <button class="btn btn-primary" type="submit">${I.plus}${T('btnAddProj')}</button>
-        </div>
-        <div class="f" style="margin-top:10px"><label>${T('lblDetails')}</label><textarea id="pDetails" placeholder="${T('phProjDetails')}" maxlength="1200">${esc(draft.details)}</textarea></div>
+          </div><div class="f" style="margin-top:10px"><label>${T('lblDetails')}</label><textarea id="pDetails" placeholder="${T('phProjDetails')}" maxlength="1200">${esc(draft.details)}</textarea></div>` : ''}
+        <div class="form" style="margin-top:10px"><button class="btn btn-primary" type="submit">${I.plus}${T('btnAddProj')}</button></div>
         </form></div></div>`
   + `<div class="card"><div class="card-h">${I.proj}<h2>${T('allProjTitle')}</h2></div>
-      <div class="card-b">${arr.length ? `<div class="projs">${arr.map(projCard).join('')}</div>` : emptyBox(T('projEmpty'),'proj')}</div></div>`;
+      <div class="card-b">${arr.length ? `<div class="projs">${arr.map(projectListCard).join('')}</div>` : emptyBox(T('projEmpty'),'proj')}</div></div>`;
+}
+function vProjectDetail() {
+  const p = projById(ui.detailProjectId);
+  if (!p) { ui.view = 'projects'; return vProjects(); }
+  return head(esc(p.name), T('projHead'), `<button class="btn" data-act="back-projects">← ${T('allProjTitle')}</button>`)
+    + `<div class="project-detail-layout">${projCard(p, { showMapControl: false, detail: true })}</div>`;
 }
 
 /* --- 工作日志 --- */
@@ -1799,6 +1873,8 @@ async function act(a, el) {
     case 'go': ui.view = el.dataset.to; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
     case 'go-upcoming': ui.view = 'tasks'; ui.taskFilter = 'upcoming'; ui.projFilter = ''; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
     case 'goproj': ui.view = 'projects'; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
+    case 'open-project-detail': ui.detailProjectId = id; ui.view = 'project-detail'; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
+    case 'back-projects': ui.detailProjectId = ''; ui.view = 'projects'; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
     case 'tfilter': ui.taskFilter = el.dataset.f; render(); return;
     case 'filter-proj': {
       // 从任务清单点：切换筛选；从项目页点：跳到待办并筛选
@@ -1826,6 +1902,14 @@ async function act(a, el) {
     case 'log-month': { const m = new Date(ui.logMonth + '-01T00:00:00'); m.setMonth(m.getMonth() + Number(el.dataset.d)); ui.logMonth = ds(m).slice(0,7); render(); return; }
     case 'delete-log': { if (!window.confirm(T('logDeleteConfirm'))) return; S.logs = S.logs.filter(x => x.id !== id); save(); render(); return; }
     case 'toggle-details': ui.expandedDetails[id] = !ui.expandedDetails[id]; render(); return;
+    case 'toggle-progress-map': ui.progressMaps[id] = !ui.progressMaps[id]; render(); return;
+    case 'edit-progress': { openProgressEdit(el.dataset.pid, id); return; }
+    case 'del-progress': {
+      const p = projById(el.dataset.pid), record = progressById(p, id); if (!p || !record) return;
+      if (!window.confirm('删除这条跟进记录后，它的后续记录会保留为独立分支。确定删除吗？')) return;
+      detachFollowers(p, id); p.progresses = progressesFor(p).filter(x => x.id !== id); p.updatedAt = Date.now(); syncProjectSummary(p);
+      save(true); render(); toast(T('tDeleted')); return;
+    }
     case 'week': ui.weekOff = el.dataset.d === '0' ? 0 : ui.weekOff + Number(el.dataset.d); if (ui.weekOff > 0) ui.weekOff = 0; render(); return;
 
     case 'toggle': case 'done': {
@@ -2024,6 +2108,15 @@ function openProjEdit(id) {
   document.body.appendChild(m);
 }
 
+function openProgressEdit(projectId, recordId) {
+  const p = projById(projectId), record = progressById(p, recordId); if (!p || !record) return;
+  const options = progressesFor(p).filter(x => x.id !== recordId && validPredecessor(p, recordId, x.id));
+  const m = document.createElement('div'); m.className = 'mask';
+  m.innerHTML = `<div class="modal" style="max-width:480px"><h3>${T('editProgress')}</h3><div class="f" style="margin-bottom:10px"><label>${T('lblPredecessor')}</label><select id="epr_predecessor"><option value="">${T('independentBranch')}</option>${options.map(x => `<option value="${x.id}"${record.predecessorId===x.id?' selected':''}>${T('kNext')}：${esc(x.next || T('vUnset'))}</option>`).join('')}</select></div><div class="f" style="margin-bottom:10px"><label>${T('lblStage')}</label><input id="epr_stage" value="${esc(record.stage)}" maxlength="160"></div><div class="f" style="margin-bottom:10px"><label>${T('lblNext')}</label><input id="epr_next" value="${esc(record.next)}" maxlength="160"></div><div class="ma"><button class="btn" data-r="0">${T('cancel')}</button><button class="btn btn-primary" data-r="1">${T('save')}</button></div></div>`;
+  m.addEventListener('click', e => { if (e.target === m) return m.remove(); const b = e.target.closest('[data-r]'); if (!b) return; if (b.dataset.r === '1') { const predecessorId = m.querySelector('#epr_predecessor').value; if (!validPredecessor(p, record.id, predecessorId)) return toast(T('tSaveFail'), true); record.stage = m.querySelector('#epr_stage').value.trim(); record.next = m.querySelector('#epr_next').value.trim(); record.predecessorId = predecessorId; record.updatedAt = Date.now(); p.updatedAt = record.updatedAt; syncProjectSummary(p); save(true); toast(T('tSaved')); } m.remove(); render(); });
+  document.body.appendChild(m);
+}
+
 /* --- 表单与事件绑定 --- */
 function bind() {
   const tf = $('taskForm');
@@ -2057,13 +2150,34 @@ function bind() {
   const pf = $('projForm');
   if (pf) pf.onsubmit = e => {
     e.preventDefault();
+    if ($('pMode').value === 'update') {
+      const p = projById($('pExisting').value);
+      const predecessorId = $('pPredecessor').value;
+      if (!p || !validPredecessor(p, '', predecessorId)) { toast(T('tSaveFail'), true); return; }
+      const now = Date.now();
+      p.progresses.unshift({ id: uid(), stage: $('pStage').value.trim(), next: $('pNext').value.trim(), predecessorId, createdAt: now, updatedAt: now });
+      p.updatedAt = now; syncProjectSummary(p); ui.drafts.project = {}; ui.resetProjectDraft = true;
+      save(true); render(); toast(T('tAddedSuccess')); return;
+    }
     const v = $('pName').value.trim();
     if (!v) { toast(T('tNeedProjName'), true); return; }
     const nid = uid();
-    S.projects.unshift({ id: nid, name: v, stage: $('pStage').value.trim(), next: $('pNext').value.trim(),
-      blocker: $('pBlock').value.trim(), details: $('pDetails').value.trim(), status: $('pStat').value, updatedAt: Date.now() });
-    ui.drafts.project = {};
-    save(true); render(); toast(T('tProjAdded'));
+    const now = Date.now(), stage = $('pStage').value.trim(), next = $('pNext').value.trim();
+    S.projects.unshift({ id: nid, name: v, stage, next,
+      progresses: [{ id: uid(), stage, next, predecessorId: '', createdAt: now, updatedAt: now }],
+      blocker: $('pBlock').value.trim(), details: $('pDetails').value.trim(), status: $('pStat').value, updatedAt: now });
+    ui.drafts.project = {}; ui.resetProjectDraft = true;
+    save(true); render(); toast(T('tAddedSuccess'));
+  };
+  const pMode = $('pMode');
+  if (pMode) pMode.onchange = () => { ui.drafts.project = { ...ui.drafts.project, mode: pMode.value }; render(); };
+  const pExisting = $('pExisting');
+  if (pExisting) pExisting.onchange = () => { ui.drafts.project = { ...ui.drafts.project, mode: 'update', existing: pExisting.value, predecessor: '' }; render(); };
+  const pPredecessor = $('pPredecessor');
+  if (pPredecessor) pPredecessor.onchange = () => {
+    const p = projById($('pExisting').value), source = progressById(p, pPredecessor.value), stage = $('pStage');
+    ui.drafts.project.predecessor = pPredecessor.value;
+    if (source && stage) stage.value = source.next;
   };
   const lf = $('logForm');
   if (lf) lf.onsubmit = e => {

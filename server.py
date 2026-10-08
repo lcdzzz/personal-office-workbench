@@ -17,7 +17,12 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parent
-APP_DIR = Path.home() / "Library" / "Application Support" / "PersonalOfficeWorkbench"
+if sys.platform == "win32":
+    APP_DIR = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming")) / "PersonalOfficeWorkbench"
+elif sys.platform == "darwin":
+    APP_DIR = Path.home() / "Library" / "Application Support" / "PersonalOfficeWorkbench"
+else:
+    APP_DIR = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "PersonalOfficeWorkbench"
 CONFIG_PATH = APP_DIR / "config.json"
 DATA_FILES = {"tasks": "tasks.json", "notes": "notes.json", "projects": "projects.json", "logs": "logs.json", "meta": "meta.json"}
 CORE_KEYS = ("tasks", "notes", "projects", "meta")
@@ -257,7 +262,11 @@ def merge_states(current: dict, incoming: dict) -> dict:
     for task in incoming["tasks"]:
         if task.get("title") and task["title"] not in task_titles:
             task = copy.deepcopy(task); task["id"] = f"import-{now_ms()}-{len(result['tasks'])}"
-            name = source_names.get(task.get("pid")); task["pid"] = by_name.get(name, "")
+            source_ids = task.get("projectIds") if isinstance(task.get("projectIds"), list) else ([task["pid"]] if task.get("pid") else [])
+            task["projectIds"] = list(dict.fromkeys(by_name[name] for name in (source_names.get(pid) for pid in source_ids) if name in by_name))
+            source_history_ids = task.get("projectHistoryIds") if isinstance(task.get("projectHistoryIds"), list) else source_ids
+            task["projectHistoryIds"] = list(dict.fromkeys([*task["projectIds"], *(by_name[name] for name in (source_names.get(pid) for pid in source_history_ids) if name in by_name)]))
+            task["pid"] = task["projectIds"][0] if task["projectIds"] else ""
             result["tasks"].append(task); task_titles.add(task["title"])
     note_texts = {x.get("text") for x in result["notes"]}
     for note in incoming["notes"]:

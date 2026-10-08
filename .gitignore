@@ -21,3 +21,9 @@ meta.json
 
 # Personal copies and local integrations
 start_副本.sh
+工作台.sh
+.build-venv/
+build/
+dist/
+__pycache__/
+*.spec

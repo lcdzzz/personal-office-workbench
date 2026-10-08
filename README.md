@@ -13,21 +13,26 @@ A lightweight, local-first personal workbench for tracking tasks, notes, and pro
 
 ## Requirements
 
-- macOS (the included launcher opens the default browser with `open`)
+- macOS or Windows
 - Python 3
 
-No database, Node.js runtime, or third-party Python package is required to run the application.
+The browser launcher needs no database, Node.js runtime, or third-party Python package. The macOS app bundles its runtime and does not require a separate Python installation.
 
 ## Start
 
 ```bash
-chmod +x start.sh
+# macOS
 ./start.sh
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File .\start-windows.ps1
 ```
 
 The launcher starts a server on `http://127.0.0.1:8799` and opens the workbench in your browser. If that port is occupied, create this file and choose a free local port:
 
-`~/Library/Application Support/PersonalOfficeWorkbench/config.json`
+macOS: `~/Library/Application Support/PersonalOfficeWorkbench/config.json`
+
+Windows: `%APPDATA%\PersonalOfficeWorkbench\config.json`
 
 ```json
 {
@@ -36,6 +41,18 @@ The launcher starts a server on `http://127.0.0.1:8799` and opens the workbench 
 }
 ```
 
+## macOS app and DMG
+
+On a Mac, build a drag-to-Applications disk image with:
+
+```bash
+./build-macos-dmg.sh
+```
+
+The script creates `dist/Personal-Office-Workbench-macOS-<architecture>.dmg`. Open the DMG and drag **Personal Office Workbench.app** to **Applications**. The app includes its Python runtime and opens the workbench in its own macOS window. Closing the window stops the local service started by the app. Your data remains in `~/Library/Application Support/PersonalOfficeWorkbench/`, independently of the installed app.
+
+The first build downloads PyInstaller and pywebview into a project-local `.build-venv`. Builds target the architecture of the Mac running the script. This build is not signed with a Developer ID certificate or notarized, so macOS may show a security prompt. Removing that prompt for external distribution requires Developer ID signing and Apple notarization.
+
 Only loopback addresses are accepted, so the server is not exposed to your network.
 
 ## Stop
@@ -43,17 +60,22 @@ Only loopback addresses are accepted, so the server is not exposed to your netwo
 The local server can be stopped when you no longer need it:
 
 ```bash
-chmod +x shutdown.sh
+# macOS
 ./shutdown.sh
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File .\shutdown-windows.ps1
 ```
 
-The shutdown script only stops the `server.py` process started from this workbench folder. It refuses to stop a process when a stale PID file points elsewhere.
+Both stop scripts verify that the recorded process belongs to this workbench before stopping it.
 
 ## Data and backups
 
 Your runtime data is kept outside the checkout in:
 
-`~/Library/Application Support/PersonalOfficeWorkbench/`
+macOS: `~/Library/Application Support/PersonalOfficeWorkbench/`
+
+Windows: `%APPDATA%\PersonalOfficeWorkbench\` (usually `C:\Users\<you>\AppData\Roaming\PersonalOfficeWorkbench\`)
 
 It contains `tasks.json`, `notes.json`, `projects.json`, `logs.json`, and `meta.json`. These files are intentionally not part of this repository. Use the **Backup** view in the application to export a ZIP before moving computers or making major changes.
 

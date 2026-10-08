@@ -289,12 +289,43 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .it-title{font-weight:545;word-break:break-word;font-size:13.9px;letter-spacing:-.05px;line-height:1.55}
 .it-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:5px}
 .it-act{display:flex;gap:3px;flex-shrink:0;align-items:center}
+.task-state-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:650;line-height:1.6;white-space:nowrap}
+.task-state-pill.todo{background:#f0f5f5;color:#657d7c}
+.task-state-pill.doing{background:#d9f2ed;color:#08786f}
+.task-state-pill.paused{background:#fff1dc;color:#98600c}
+.task-state-pill.done{background:#e6f2ec;color:#39704d}
+.task-progress{display:flex;align-items:center;gap:7px;margin-top:6px;max-width:280px}
+.task-progress-track{height:5px;flex:1;min-width:56px;overflow:hidden;border-radius:999px;background:#edf2f1}
+.task-progress-fill{display:block;height:100%;border-radius:inherit;transition:width .2s ease}
+.task-progress-fill.doing{background:#0b9b8d}
+.task-progress-fill.paused{background:#d99a32}
+.task-progress-fill.done{background:#6b9b77}
+.task-progress-value{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.task-state-btn{padding:4px 8px;border:1px solid var(--line-soft);border-radius:7px;background:#fff;color:var(--accent-deep);font:inherit;font-size:11px;font-weight:650;white-space:nowrap}
+.task-state-btn:hover{border-color:var(--accent);background:var(--accent-soft2)}
+.task-state-btn.pause{color:#98600c}
+.task-progress-editor{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:8px;background:#fbfdfd}
+.task-progress-editor input{flex:1;accent-color:var(--accent)}
+.task-progress-editor output{min-width:42px;text-align:right;font-size:13px;font-weight:700;color:var(--accent-deep);font-variant-numeric:tabular-nums}
 .details{margin-top:7px;font-size:12.5px;line-height:1.68;color:var(--text-2)}
 .details-toggle{padding:0;border:0;background:none;color:var(--accent-deep);font:inherit;font-size:12px;font-weight:650;cursor:pointer}
 .details-toggle:hover{text-decoration:underline}
 .details-summary{margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-3)}
 .details-body{margin-top:6px;padding:8px 10px;border-left:2px solid var(--accent);background:var(--accent-soft2);border-radius:0 var(--radius-xs) var(--radius-xs) 0;word-break:break-word}
-.log-cal-head,.log-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.log-cal-head{color:var(--text-3);font-size:12px;font-weight:650;text-align:center;margin-bottom:8px}.log-cal button{min-height:58px;border-radius:12px;background:var(--bg-2);font:inherit;color:var(--text-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.log-cal button.has-log{background:#b9e8df;color:var(--accent-deep);box-shadow:inset 0 0 0 1px rgba(13,148,136,.32)}.log-cal button.on{background:var(--accent);color:#fff}.log-cal button.out{opacity:.42}.log-cal button.holiday{background:#fff7ed;color:#c2410c}.log-cal button.holiday.on{background:var(--accent);color:#fff}.log-day-note{font-size:10px;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.log-list{display:flex;flex-direction:column;gap:8px}.log-row{display:flex;align-items:center;gap:12px;padding:11px 12px;text-align:left;border:1px solid var(--line-soft);border-radius:var(--radius-sm);background:#fff;font:inherit}.log-row:hover{border-color:var(--accent)}.log-row-main{min-width:0;flex:1}.log-row p{margin:4px 0 0;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-cal-head,.log-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.log-cal-head{color:var(--text-3);font-size:12px;font-weight:650;text-align:center;margin-bottom:8px}.log-cal button{min-height:58px;border-radius:12px;background:var(--bg-2);font:inherit;color:var(--text-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.log-cal button.has-log{background:#b9e8df;color:var(--accent-deep);box-shadow:inset 0 0 0 1px rgba(13,148,136,.32)}.log-cal button.on{background:var(--accent);color:#fff}.log-cal button.out{opacity:.42}.log-cal button.holiday{background:#fff7ed;color:#c2410c}.log-cal button.holiday.on{background:var(--accent);color:#fff}.log-day-note{font-size:10px;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.log-list{display:flex;flex-direction:column;gap:8px}.log-row{display:flex;align-items:center;gap:12px;padding:11px 12px;text-align:left;border:1px solid var(--line-soft);border-radius:var(--radius-sm);background:#fff;font:inherit}.log-row:hover{border-color:var(--accent)}.log-row-main{min-width:0;flex:1}.log-row p{margin:4px 0 0;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.log-project-tags{min-height:38px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}.log-project-tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-deep);font-size:12px;font-weight:650;line-height:1.4}.log-project-empty{color:var(--text-3);font-size:13px}
+.task-project-picker{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.task-project-picker summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:38px;padding:8px 11px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;list-style:none}
+.task-project-picker summary::-webkit-details-marker{display:none}
+.task-project-picker summary::after{content:'⌄';color:var(--text-3);font-size:17px;line-height:1}
+.task-project-picker[open] summary{border-bottom:1px solid var(--line-soft)}
+.task-project-picker[open] summary::after{transform:rotate(180deg)}
+.task-project-panel{padding:8px}
+.task-project-search{width:100%;margin-bottom:7px}
+.task-project-options{display:flex;flex-direction:column;gap:3px;max-height:180px;overflow-y:auto}
+.f .task-project-option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0;text-transform:none}
+.f .task-project-option:hover,.f .task-project-option:has(input:checked){background:var(--accent-soft);color:var(--accent-deep)}
+.task-project-option[hidden]{display:none}
+.task-project-option input{margin:0;accent-color:var(--accent-dark)}
 .ico-btn{width:31px;height:31px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;color:var(--text-4);transition:.15s}
 .ico-btn:hover{background:var(--bg-2);color:var(--text-2)}
 .ico-btn.red:hover{background:var(--danger-soft);color:var(--danger)}
@@ -347,6 +378,22 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .pt-chk:hover{border-color:var(--accent);background:var(--accent-soft)}
 .pt-chk svg{width:10px;height:10px;color:var(--accent);opacity:0;stroke-width:3.6}
 .pt-chk:hover svg{opacity:.75}
+.pt-chk.on{border-color:var(--accent-dark);background:var(--accent)}
+.pt-chk.on svg{color:#fff;opacity:1}
+.pt-table-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px}
+.pt-table{width:100%;min-width:620px;border-collapse:collapse;text-align:left;font-size:12.5px}
+.pt-table th{background:var(--bg-2);color:var(--text-3);font-size:11px;font-weight:650}
+.pt-table th,.pt-table td{padding:10px 9px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.pt-table tr:last-child td{border-bottom:0}
+.pt-table td:first-child{width:66px}
+.pt-table td:nth-child(2){min-width:140px;width:24%;font-weight:600;word-break:break-word}
+.pt-table td:nth-child(3){min-width:210px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text-2)}
+.pt-table td:nth-child(4){white-space:nowrap}
+.pt-table td:last-child{white-space:nowrap;color:var(--text-3)}
+.pt-table .pt-completed td:nth-child(2){text-decoration:line-through;color:var(--text-3)}
+.pt-table .pt-chk{margin:1px 0 0}
+.pt-table .pt-empty-detail{color:var(--text-4)}
+.pt-table .pt-completed-at{display:block;margin-top:4px;font-size:11px;color:var(--text-4)}
 .pt-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#20403e}
 .pt-d{font-size:11px;color:var(--text-4);flex-shrink:0;font-weight:550}
 .pt-d.od{color:var(--danger);font-weight:700}
@@ -358,6 +405,13 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .pt-none{font-size:12px;color:var(--text-4);line-height:1.6}
 .pt-done{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--accent-dark);font-weight:550}
 .pt-done svg{width:14px;height:14px;color:var(--accent)}
+.pt-history{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft)}
+.pt-history .pt-t{display:block;margin-bottom:6px}
+.pt-history .pt-i{color:var(--text-2)}
+.pt-history-list{max-height:180px;overflow-y:auto}
+.pt-history .pt-n{color:inherit}
+.pt-history .pt-completed .pt-n{text-decoration:line-through;color:var(--text-3)}
+.pt-history .pt-d{color:var(--text-3)}
 
 /* ================= Notes ================= */
 .tagbar{display:flex;gap:7px;flex-wrap:wrap}
@@ -376,11 +430,15 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .note::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:linear-gradient(180deg,var(--accent),var(--cyan));opacity:.8}
 .note:hover{box-shadow:var(--sh-3);border-color:#cfe3e1;transform:translateY(-1.5px)}
 .note:hover::before{opacity:1}
-.note p{margin:0 0 11px;white-space:pre-wrap;word-break:break-word;font-size:13.4px;line-height:1.68;padding-right:26px;color:#173432}
+.note p{margin:0 0 11px;white-space:pre-wrap;word-break:break-word;font-size:13.4px;line-height:1.68;padding-right:62px;color:#173432}
 .note .nf{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .note .nf time{font-size:11px;color:var(--text-4);margin-left:auto;font-weight:500}
-.note .del{position:absolute;top:8px;right:8px;opacity:0;transition:.15s}
-.note:hover .del{opacity:1}
+.note-status{border:1px solid #b8dcd6;border-radius:999px;padding:3px 8px;background:#e4f4f0;color:#08786f;font-size:11px;font-weight:650;cursor:pointer}
+.note-status.pending{border-color:#d6e1df;background:#f1f5f4;color:#687f7c}
+.note-status:hover{filter:brightness(.96)}
+.note-implemented-time{font-size:11px;color:var(--text-3)}
+.note-actions{position:absolute;top:8px;right:8px;display:flex;gap:2px;opacity:0;transition:.15s}
+.note:hover .note-actions,.note:focus-within .note-actions{opacity:1}
 
 /* ================= Projects ================= */
 .projs{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:13px}
@@ -388,7 +446,7 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
   border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;background:var(--surface);
   box-shadow:var(--sh-1);transition:box-shadow .2s,transform .2s,border-color .2s;position:relative;overflow:hidden;
 }
-.progress-map{margin:18px 0;padding:18px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);overflow-x:auto}.progress-lanes{display:grid;gap:24px;width:100%}.progress-lane{min-width:0;display:flex;flex-direction:column;gap:12px;padding:4px 2px}.progress-node{width:100%;padding:12px;border:1px solid #cfe5e1;border-radius:9px;background:#fff;box-shadow:var(--sh-1);font-size:12px;color:var(--text-2)}.progress-node-h{display:flex;gap:7px;align-items:flex-start;color:var(--text)}.progress-node-h b{flex:1;word-break:break-word}.progress-node-h .sp{display:flex}.progress-node small{display:block;margin-top:6px;color:var(--text-4)}.progress-arrow{height:22px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;font-weight:700}.project-list-card{width:100%;min-height:142px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}.project-list-card:hover{border-color:var(--accent);background:var(--accent-soft2)}.project-list-card .proj-h{width:100%}.project-list-meta{font-size:12px;color:var(--text-3)}.project-list-open{font-size:12px;font-weight:700;color:var(--accent-dark)}.project-detail-layout{width:100%}.project-detail-layout .proj{width:100%}
+.progress-map{margin:18px 0;padding:18px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);overflow-x:auto}.progress-lanes{display:grid;gap:24px;width:100%}.progress-lane{min-width:0;display:flex;flex-direction:column;gap:12px;padding:4px 2px}.progress-node{width:100%;padding:12px;border:1px solid #cfe5e1;border-radius:9px;background:#fff;box-shadow:var(--sh-1);font-size:12px;color:var(--text-2)}.progress-node.done{background:#f7fbfa;border-color:#dce9e7}.progress-node-h{display:flex;gap:7px;align-items:flex-start;color:var(--text)}.progress-node-h b{flex:1;word-break:break-word}.progress-node.done .progress-node-h b{text-decoration:line-through;color:var(--text-3)}.progress-node-h .sp{display:flex;align-items:center}.progress-node small{display:block;margin-top:6px;color:var(--text-4)}.progress-check{width:20px;height:20px;flex:0 0 20px;padding:0;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:var(--accent-dark);display:flex;align-items:center;justify-content:center;cursor:pointer}.progress-check:hover{border-color:var(--accent);background:var(--accent-soft2)}.progress-check svg{width:13px;height:13px;opacity:0;stroke-width:3}.progress-check.on{border-color:var(--accent-dark);background:var(--accent);color:#fff}.progress-check.on svg{opacity:1}.progress-arrow{height:22px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;font-weight:700}.project-list-card{width:100%;min-height:142px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}.project-list-card:hover{border-color:var(--accent);background:var(--accent-soft2)}.project-list-card .proj-h{width:100%}.project-list-meta{font-size:12px;color:var(--text-3)}.project-list-open{font-size:12px;font-weight:700;color:var(--accent-dark)}.project-detail-layout{width:100%}.project-detail-layout .proj{width:100%}
 .proj::after{content:"";position:absolute;left:0;right:0;top:0;height:2.5px;background:linear-gradient(90deg,var(--accent),var(--cyan))}
 .proj:hover{box-shadow:var(--sh-3);transform:translateY(-1.5px)}
 .proj.blocked{border-color:var(--danger-line);background:linear-gradient(180deg,#fffbfb,#fff)}
@@ -532,7 +590,7 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
   .f.grow,.form .f{flex:1 1 100%}
   .form .btn{width:100%}
   .notes,.projs{grid-template-columns:1fr}
-  .note .del{opacity:1}
+  .note-actions{opacity:1}
   .subbar{padding:10px 15px;gap:6px}
   .sb-l{width:100%;margin-bottom:1px}
   .dgroup .list{padding-left:10px}
@@ -616,12 +674,10 @@ const I18N = {
     focusClearPill: '没有逾期，也没有卡住的项目',
     focusClearText: '清空了。按优先级往下推「今天待办」就行。',
     focusPill: (od, st) => `逾期 ${od} · 卡住 ${st}`,
-    rollAll: '全部顺延到明天',
     fTask: '待办', fDue: d => `原定 ${d}`, fOverdue: n => `逾期 ${n} 天`,
-    fRolled: n => `已顺延 ${n} 次`,
     fProjBlocked: '项目卡住', fNoReason: '未写原因', fNextStep: '下一步：',
     fLinked: (d, t) => `关联待办 ${d}/${t}`,
-    btnDone: '完成', btnPostpone: '顺延', btnSeeTasks: '看待办', btnHandle: '去处理',
+    btnDone: '完成', btnSeeTasks: '看待办', btnHandle: '去处理',
     pillBlocked: '卡住了',
     miniAlert: (od, st) => `今天有 <b>${od}</b> 件逾期${st ? ` 和 <b>${st}</b> 个卡住的项目` : ''}还没处理`,
     miniGo: '去看看',
@@ -635,14 +691,14 @@ const I18N = {
     projProgress: '项目进展', allProjects: '全部项目', noProjects: '还没有在跑的项目。',
 
     tasksHead: '今天待办',
-    tasksSub: '填任务、选轻重缓急、填截止日期，做完打勾。逾期的会标红，未来的排在「即将到来」。',
-    rollAllOverdue: '逾期全部顺延到明天',
+    tasksSub: '填任务、选轻重缓急和截止日期；点「开始」标记今天正在做，在编辑里调整完成进度。做完打勾，逾期任务会标红，未来任务排在「即将到来」。',
     addOneTask: '加一条任务', addTaskHint: '可以挂到某个项目下，项目卡上会显示进度',
     lblWhat: '要做什么', phWhat: '例如：把方案的结论页写完',
     lblDetails: '详情（可不填）', phTaskDetails: '补充步骤、验收要点或关键链接',
     viewDetails: '查看详情', hideDetails: '收起详情',
     lblPrio: '轻重缓急', lblDue: '截止日期',
-    lblLinkProj: '关联项目（可不选）', optNoProj: '不关联项目',
+    taskStatus: '待办状态', taskProgress: '完成进度', taskTodo: '未开始', taskDoing: '今日进行中', taskPaused: '已暂停', taskDone: '已完成', taskStart: '开始', taskPause: '暂停',
+    lblLinkProj: '关联项目（可多选）', optNoProj: '不关联项目', taskProjectsSelected: n => `已选 ${n} 个项目`, taskProjectSearch: '搜索项目',
     btnAdd: '添加', taskListTitle: '任务清单',
     segToday: '今天', segOverdue: '逾期', segUpcoming: '即将到来', segAll: '全部', segDone: '已完成',
     filterByProj: '按项目筛选', filterAll: '全部', filterNoProj: '未关联项目',
@@ -651,22 +707,22 @@ const I18N = {
     emptyToday: '今天没有待办了，加一条或看看「即将到来」。',
     emptyUpcoming: '未来还没有安排任务。', emptyDone: '还没有完成记录。',
     emptyDefault: '这里还是空的。', emptyProjFilter: '这个项目在当前筛选下没有任务。',
-    doneAt: t => `已完成 ${t}`, rollsPill: n => `顺延 ${n} 次`,
-    carriedPill: '昨日未完成 · 已带到今天',
-    ttPostpone: '顺延到明天', ttEdit: '编辑', ttDelete: '删除', ttComplete: '完成',
+    doneAt: t => `已完成 ${t}`,
+    ttEdit: '编辑', ttDelete: '删除', ttComplete: '完成',
 
     notesHead: '灵感速记',
     notesSub: (n, t) => `随手记想法，打上标签方便回头找。共 ${n} 条${t ? ` · ${t} 个标签` : ''}`,
     noteAdd: '记一条', lblIdea: '想法', phIdea: '想到什么就写什么，不用组织语言',
     lblTags: '标签（用逗号或空格分隔）', phTags: '例如：产品, 方法',
-    btnNote: '记下来', myNotes: '我的灵感', phSearch: '搜内容或标签',
+    btnNote: '记下来', myNotes: '我的灵感', phSearch: '搜内容或标签', mEditNote: '编辑灵感',
+    notePending: '待实现', noteImplemented: '已实现', noteMarkImplemented: '标记为已实现', noteMarkPending: '改回待实现', noteImplementedAt: t => `实现于 ${t}`,
     notesEmpty: '还没有记录，上面写一条试试。', notesNoMatch: '没有匹配的灵感。',
     logsHead: '工作日志', logsSub: '按日期记录工作过程，可关联多个项目。', logDate: '日期', logContent: '日志内容', logProjects: '关联项目（可多选）', logSave: '保存', logEdit: '修改', logDelete: '删除', logEmpty: '这一天还没有日志。', logTimeline: '相关日志时间线', logCount: n => `相关日志 ${n} 篇`, logView: '编辑日志', logDeleteConfirm: '确认删除这条日志吗？删除后无法恢复。', logBack: '返回全部日志',
 
     projHead: '项目跟进',
     projSub: (run, st, done, linked) => `${run} 个在跑${st ? ` · <span style="color:var(--danger);font-weight:600">${st} 个卡住</span>` : ''} · 已完成 ${done} 个 · 挂了 ${linked} 条待办`,
     newProj: '新建项目', newProjHint: '卡住的项目会自动出现在最上面的「今天要处理的」',
-    projectModeNew: '新建项目', projectModeUpdate: '更新已有项目', lblProjectMode: '操作类型', lblExistingProject: '选择项目', lblPredecessor: '接在何处之后', independentBranch: '新增独立分支', progressCount: n => `${n} 条跟进记录`, progressMap: '查看进展关系图', projectDetail: '查看详情 →', editProgress: '编辑跟进记录', deleteProgress: '删除跟进记录', tAddedSuccess: '添加成功',
+    projectModeNew: '新建项目', projectModeUpdate: '更新已有项目', lblProjectMode: '操作类型', lblExistingProject: '选择项目', lblPredecessor: '接在何处之后', independentBranch: '新增独立分支', progressCount: n => `${n} 条跟进记录`, progressMap: '查看进展关系图', projectDetail: '查看详情 →', editProgress: '编辑跟进记录', deleteProgress: '删除跟进记录', markProgressDone: '标记跟进完成', reopenProgress: '取消完成标记', tAddedSuccess: '添加成功',
     lblProjName: '项目名', phProjName: '例如：首页改版',
     lblStatus: '状态', stActive: '进行中', stBlocked: '卡住了', stDone: '已完成',
     lblStage: '现在到哪一步', phStage: '例如：视觉稿第二轮评审中',
@@ -677,6 +733,7 @@ const I18N = {
     kNow: '现在', kNext: '下一步', kBlock: '卡在', kUpdated: '更新',
     vUnset: '未填', vNoBlock: '没卡住',
     linkedTasks: '关联待办', addOne: '加一条',
+    formerLinkedTasks: '曾经关联的待办', formerTaskOpen: '未完成', formerTaskDone: '已完成', reopenTask: '恢复为未完成', taskTableTitle: '待办', taskTableDetails: '详情', taskTablePriority: '优先级', taskTableDue: '截止日期',
     ptNone: '还没挂待办。把要做的事拆成任务挂上来，这里会显示进度。',
     ptAllDone: n => `关联的 ${n} 件待办都做完了`,
     ptMore: n => `还有 ${n} 件，全部查看 →`, ptOverdue: n => `${n} 逾期`,
@@ -699,7 +756,7 @@ const I18N = {
     noBlockers: '没有卡点，这周挺顺。',
     blkProjStuck: '项目卡住：', blkNextStep: '下一步：',
     blkLinked: (d, t, od) => `关联待办 ${d}/${t} 完成${od ? `，其中 ${od} 件已逾期` : ''}`,
-    blkTaskOverdue: '待办逾期', blkDays: n => `${n} 天`, blkRolls: n => `（已顺延 ${n} 次）`,
+    blkTaskOverdue: '待办逾期', blkDays: n => `${n} 天`,
 
     backupHead: '数据说明',
     backupSub: '数据只保存在这台设备的本地文件中，不上传、不联网；换设备用「导出 / 导入」搬过去。',
@@ -735,13 +792,10 @@ const I18N = {
     cancel: '取消', confirm: '确定', save: '保存', del: '删除',
     mInitialTitle: '第一次打开工作台', mInitialBody: '请选择如何开始。<br><b>空数据</b>＝从零开始；<b>示例数据</b>＝先看看工作台怎么用。',
     mInitialEmpty: '空数据', mInitialSample: '示例数据',
-    mRollTitle: '顺延到明天',
-    mRollBody: (n, d) => `把 ${n} 条逾期任务的截止日期统一改成明天（${d}）？每条会记一次顺延次数。`,
-    mRollOk: '全部顺延',
     mDelTaskTitle: '删除任务', mDelTaskBody: t => `确定删掉「${t}」？删了找不回来。`,
     mDelNoteTitle: '删除灵感', mDelNoteBody: '确定删掉这条记录？',
     mDelProjTitle: '删除项目', mDelProjBody: n => `确定删掉项目「${n}」？`,
-    mDelProjLinked: (n, c) => `项目「${n}」下还挂着 <b>${c}</b> 条待办。<br><b>保留待办</b>＝只删项目，这些任务变成「未关联项目」；<b>一起删</b>＝任务也一并删掉。`,
+    mDelProjLinked: (n, c) => `项目「${n}」下还挂着 <b>${c}</b> 条待办。<br><b>保留待办</b>＝只删项目及其关联，任务的其他项目关联保留；<b>一起删</b>＝这些任务也一并删掉。`,
     mKeepTasks: '保留待办', mDelAll: '一起删',
     mEditTask: '编辑任务', mEditProj: '编辑项目',
     mClearSampleTitle: '清空示例',
@@ -757,14 +811,12 @@ const I18N = {
     tCompleted: t => `已完成：${t}`,
     tProjCleared: p => `「${p}」的待办全清了`,
     tProjProgress: (p, d, t) => `已完成 · ${p} ${d}/${t}`,
-    tPostponed: '已顺延到明天', tPostponedN: n => `${n} 条已顺延到明天`,
     tDeleted: '已删除', tSaved: '已保存', tNoted: '已记下',
     tProjAdded: '项目已添加，可以往下面挂待办了',
     tAddTaskTo: p => `在「${p}」下加任务`,
     tExported: n => `已导出 ${n} 条记录`,
     tImported: n => `导入完成，现在共 ${n} 条`,
     tSampleCleared: '示例已清空，开始记你自己的', tWiped: '已清空',
-    tRolledOver: n => `${n} 条昨天没做完的任务已带到今天`,
     tNeedContent: '先写点内容', tNeedProjName: '先填项目名',
     tNeedTitle: '标题不能为空', tNeedProjNameEmpty: '项目名不能为空',
     tLoadFail: '本地数据读取失败，请检查本地服务或从备份恢复',
@@ -780,7 +832,7 @@ const I18N = {
     sTask9: '周会材料发群里', sTask10: '把上月账单归档',
     sTask11: '给新同学做一次系统介绍', sTask12: '导出博客全部历史文章',
     sNote1: '工作台首页可以只留「今天要处理的」，其他都收进侧边栏——信息越少越容易开始。',
-    sNote2: '读书笔记：任务清单失效通常不是因为写得少，而是因为没有「顺延成本」。每顺延一次就记一次，自己会不好意思。',
+    sNote2: '读书笔记：把任务拆成清楚的下一步，比单纯列出一长串待办更容易开始。',
     sNote3: '给复盘加一个「卡点汇总」，比统计做了多少件事更有用。',
     sTag1: '产品', sTag2: '灵感', sTag3: '读书', sTag4: '方法',
     sProj1: '首页改版', sProj1Stage: '视觉稿第二轮评审中', sProj1Next: '本周五前定稿并提交开发排期',
@@ -809,12 +861,10 @@ const I18N = {
     focusClearPill: 'Nothing overdue, no blocked projects',
     focusClearText: 'All clear. Just work down Tasks by priority.',
     focusPill: (od, st) => `${od} overdue · ${st} blocked`,
-    rollAll: 'Postpone all to tomorrow',
     fTask: 'Task', fDue: d => `due ${d}`, fOverdue: n => `${n} day${n>1?'s':''} overdue`,
-    fRolled: n => `postponed ${n}×`,
     fProjBlocked: 'Project blocked', fNoReason: 'no reason given', fNextStep: 'Next: ',
     fLinked: (d, t) => `Linked tasks ${d}/${t}`,
-    btnDone: 'Done', btnPostpone: 'Postpone', btnSeeTasks: 'Tasks', btnHandle: 'Open',
+    btnDone: 'Done', btnSeeTasks: 'Tasks', btnHandle: 'Open',
     pillBlocked: 'Blocked',
     miniAlert: (od, st) => `<b>${od}</b> overdue${st ? ` and <b>${st}</b> blocked project${st>1?'s':''}` : ''} still unhandled today`,
     miniGo: 'Review',
@@ -828,14 +878,14 @@ const I18N = {
     projProgress: 'Project status', allProjects: 'All projects', noProjects: 'No active projects yet.',
 
     tasksHead: 'Tasks',
-    tasksSub: 'Add a task, set its priority and due date, check it off when done. Overdue items turn red; future ones go to Upcoming.',
-    rollAllOverdue: 'Postpone all overdue to tomorrow',
+    tasksSub: 'Add a task, set its priority and due date, use Start to mark what you are working on today, and adjust progress in Edit. Check it off when done. Overdue items turn red; future ones go to Upcoming.',
     addOneTask: 'Add a task', addTaskHint: 'Attach it to a project and the project card will show progress',
     lblWhat: 'What needs doing', phWhat: 'e.g. Finish the conclusion page of the proposal',
     lblDetails: 'Details (optional)', phTaskDetails: 'Add steps, acceptance criteria, or a key link',
     viewDetails: 'View details', hideDetails: 'Hide details',
     lblPrio: 'Priority', lblDue: 'Due date',
-    lblLinkProj: 'Link to project (optional)', optNoProj: 'No project',
+    taskStatus: 'Task status', taskProgress: 'Progress', taskTodo: 'Not started', taskDoing: 'In progress today', taskPaused: 'Paused', taskDone: 'Completed', taskStart: 'Start', taskPause: 'Pause',
+    lblLinkProj: 'Linked projects (multiple allowed)', optNoProj: 'No project', taskProjectsSelected: n => `${n} projects selected`, taskProjectSearch: 'Search projects',
     btnAdd: 'Add', taskListTitle: 'Task list',
     segToday: 'Today', segOverdue: 'Overdue', segUpcoming: 'Upcoming', segAll: 'All', segDone: 'Done',
     filterByProj: 'Filter by project', filterAll: 'All', filterNoProj: 'No project',
@@ -844,22 +894,22 @@ const I18N = {
     emptyToday: 'No tasks today. Add one, or check Upcoming.',
     emptyUpcoming: 'Nothing scheduled ahead.', emptyDone: 'No completed items yet.',
     emptyDefault: 'Still empty here.', emptyProjFilter: 'No tasks for this project under the current filter.',
-    doneAt: t => `Done ${t}`, rollsPill: n => `postponed ${n}×`,
-    carriedPill: 'Unfinished yesterday · carried to today',
-    ttPostpone: 'Postpone to tomorrow', ttEdit: 'Edit', ttDelete: 'Delete', ttComplete: 'Complete',
+    doneAt: t => `Done ${t}`,
+    ttEdit: 'Edit', ttDelete: 'Delete', ttComplete: 'Complete',
 
     notesHead: 'Quick Notes',
     notesSub: (n, t) => `Jot ideas down and tag them for later. ${n} note${n>1?'s':''}${t ? ` · ${t} tag${t>1?'s':''}` : ''}`,
     noteAdd: 'Add a note', lblIdea: 'Idea', phIdea: "Write whatever comes to mind — no need to polish it",
     lblTags: 'Tags (separate with commas or spaces)', phTags: 'e.g. product, method',
-    btnNote: 'Save note', myNotes: 'My notes', phSearch: 'Search text or tags',
+    btnNote: 'Save note', myNotes: 'My notes', phSearch: 'Search text or tags', mEditNote: 'Edit note',
+    notePending: 'To implement', noteImplemented: 'Implemented', noteMarkImplemented: 'Mark as implemented', noteMarkPending: 'Mark as pending', noteImplementedAt: t => `Implemented ${t}`,
     notesEmpty: 'Nothing here yet. Write one above.', notesNoMatch: 'No matching notes.',
     logsHead: 'Work Logs', logsSub: 'Record work by date and link it to one or more projects.', logDate: 'Date', logContent: 'Log', logProjects: 'Linked projects (multiple allowed)', logSave: 'Save', logEdit: 'Edit', logDelete: 'Delete', logEmpty: 'No logs for this day.', logTimeline: 'Related log timeline', logCount: n => `${n} related logs`, logView: 'Edit log', logDeleteConfirm: 'Delete this log? This cannot be undone.', logBack: 'Back to all logs',
 
     projHead: 'Projects',
     projSub: (run, st, done, linked) => `${run} running${st ? ` · <span style="color:var(--danger);font-weight:600">${st} blocked</span>` : ''} · ${done} completed · ${linked} linked task${linked>1?'s':''}`,
     newProj: 'New project', newProjHint: 'Blocked projects surface automatically in "Needs attention today"',
-    projectModeNew: 'New project', projectModeUpdate: 'Update existing project', lblProjectMode: 'Action', lblExistingProject: 'Project', lblPredecessor: 'Continue after', independentBranch: 'Start independent branch', progressCount: n => `${n} progress updates`, progressMap: 'View progress map', projectDetail: 'View details →', editProgress: 'Edit update', deleteProgress: 'Delete update', tAddedSuccess: 'Added successfully',
+    projectModeNew: 'New project', projectModeUpdate: 'Update existing project', lblProjectMode: 'Action', lblExistingProject: 'Project', lblPredecessor: 'Continue after', independentBranch: 'Start independent branch', progressCount: n => `${n} progress updates`, progressMap: 'View progress map', projectDetail: 'View details →', editProgress: 'Edit update', deleteProgress: 'Delete update', markProgressDone: 'Mark update complete', reopenProgress: 'Clear completion', tAddedSuccess: 'Added successfully',
     lblProjName: 'Project name', phProjName: 'e.g. Homepage redesign',
     lblStatus: 'Status', stActive: 'Active', stBlocked: 'Blocked', stDone: 'Completed',
     lblStage: 'Where it stands', phStage: 'e.g. Second round of visual review',
@@ -870,6 +920,7 @@ const I18N = {
     kNow: 'Now', kNext: 'Next', kBlock: 'Blocker', kUpdated: 'Updated',
     vUnset: 'not set', vNoBlock: 'not blocked',
     linkedTasks: 'Linked tasks', addOne: 'Add one',
+    formerLinkedTasks: 'Previously linked tasks', formerTaskOpen: 'Open', formerTaskDone: 'Done', reopenTask: 'Mark as open', taskTableTitle: 'Task', taskTableDetails: 'Details', taskTablePriority: 'Priority', taskTableDue: 'Due date',
     ptNone: 'No tasks linked yet. Break the work into tasks and progress will show here.',
     ptAllDone: n => `All ${n} linked task${n>1?'s':''} completed`,
     ptMore: n => `${n} more — view all →`, ptOverdue: n => `${n} overdue`,
@@ -892,7 +943,7 @@ const I18N = {
     noBlockers: 'No blockers — a smooth week.',
     blkProjStuck: 'Project blocked: ', blkNextStep: 'Next: ',
     blkLinked: (d, t, od) => `${d}/${t} linked tasks done${od ? `, ${od} of them overdue` : ''}`,
-    blkTaskOverdue: 'Task overdue', blkDays: n => `${n} day${n>1?'s':''}`, blkRolls: n => ` (postponed ${n}×)`,
+    blkTaskOverdue: 'Task overdue', blkDays: n => `${n} day${n>1?'s':''}`,
 
     backupHead: 'Data Info',
     backupSub: 'Data lives only in this browser on this device — nothing is uploaded. Move it with Export / Import.',
@@ -928,13 +979,10 @@ const I18N = {
     cancel: 'Cancel', confirm: 'OK', save: 'Save', del: 'Delete',
     mInitialTitle: 'First time opening the workbench', mInitialBody: 'Choose how to begin.<br><b>Empty</b> = start from scratch; <b>Sample</b> = see how the workbench works first.',
     mInitialEmpty: 'Empty data', mInitialSample: 'Sample data',
-    mRollTitle: 'Postpone to tomorrow',
-    mRollBody: (n, d) => `Move the due date of ${n} overdue task${n>1?'s':''} to tomorrow (${d})? Each one records another postponement.`,
-    mRollOk: 'Postpone all',
     mDelTaskTitle: 'Delete task', mDelTaskBody: t => `Delete "${t}"? This cannot be undone.`,
     mDelNoteTitle: 'Delete note', mDelNoteBody: 'Delete this note?',
     mDelProjTitle: 'Delete project', mDelProjBody: n => `Delete the project "${n}"?`,
-    mDelProjLinked: (n, c) => `The project "${n}" still has <b>${c}</b> linked task${c>1?'s':''}.<br><b>Keep tasks</b> = delete only the project, tasks become unlinked; <b>Delete both</b> = remove the tasks too.`,
+    mDelProjLinked: (n, c) => `The project "${n}" still has <b>${c}</b> linked task${c>1?'s':''}.<br><b>Keep tasks</b> = remove this project link and keep other project links; <b>Delete both</b> = remove the tasks too.`,
     mKeepTasks: 'Keep tasks', mDelAll: 'Delete both',
     mEditTask: 'Edit task', mEditProj: 'Edit project',
     mClearSampleTitle: 'Clear samples',
@@ -950,14 +998,12 @@ const I18N = {
     tCompleted: t => `Completed: ${t}`,
     tProjCleared: p => `All tasks for "${p}" are done`,
     tProjProgress: (p, d, t) => `Done · ${p} ${d}/${t}`,
-    tPostponed: 'Postponed to tomorrow', tPostponedN: n => `${n} postponed to tomorrow`,
     tDeleted: 'Deleted', tSaved: 'Saved', tNoted: 'Noted',
     tProjAdded: 'Project added — you can link tasks to it now',
     tAddTaskTo: p => `Adding a task under "${p}"`,
     tExported: n => `Exported ${n} records`,
     tImported: n => `Import complete — ${n} records now`,
     tSampleCleared: 'Samples cleared. Start recording your own.', tWiped: 'Cleared',
-    tRolledOver: n => `${n} unfinished task${n>1?'s':''} from yesterday carried to today`,
     tNeedContent: 'Write something first', tNeedProjName: 'Enter a project name first',
     tNeedTitle: 'Title cannot be empty', tNeedProjNameEmpty: 'Project name cannot be empty',
     tLoadFail: 'Could not read local data — check the local service or restore a backup',
@@ -973,7 +1019,7 @@ const I18N = {
     sTask9: 'Send the weekly meeting deck to the group', sTask10: 'Archive last month\u2019s invoices',
     sTask11: 'Give the new teammate a system walkthrough', sTask12: 'Export all historical blog posts',
     sNote1: 'The workbench home page could keep only "Needs attention today" and tuck everything else into the sidebar — less information makes it easier to start.',
-    sNote2: 'Reading note: task lists usually fail not because too little is written down, but because postponing costs nothing. Count every postponement and you start feeling awkward about it.',
+    sNote2: 'Reading note: breaking a task into a clear next step makes it easier to start than keeping a long list of vague items.',
     sNote3: 'Adding a blocker summary to the review is more useful than counting how many things got done.',
     sTag1: 'product', sTag2: 'ideas', sTag3: 'reading', sTag4: 'method',
     sProj1: 'Homepage redesign', sProj1Stage: 'Second round of visual review', sProj1Next: 'Finalize by Friday and submit for dev scheduling',
@@ -1094,7 +1140,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 
 /* ---------- 状态 ---------- */
 let S = null;
-let ui = { view: 'focus', detailProjectId: '', taskFilter: 'today', projFilter: '', tagFilter: '', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '',
+let ui = { view: 'focus', detailProjectId: '', taskFilter: 'today', projFilter: '', tagFilter: '', noteStatusFilter: 'all', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '', logEditing: false,
   drafts: { task: {}, note: {}, project: {} }, expandedDetails: {}, progressMaps: {} };
 
 const blank = () => ({
@@ -1116,12 +1162,77 @@ async function load() {
 function normalize() {
   const ids = new Set(S.projects.map(p => p.id));
   S.tasks.forEach(k => {
-    if (k.pid === undefined) k.pid = '';
-    if (k.pid && !ids.has(k.pid)) k.pid = '';   // 项目已删，任务保留但解绑
-    if (k.rolls === undefined) k.rolls = 0;
+    normalizeTask(k);
+    k.projectIds = [...new Set((Array.isArray(k.projectIds) ? k.projectIds : (k.pid ? [k.pid] : [])).filter(id => ids.has(id)))];
+    k.projectHistoryIds = [...new Set([...(Array.isArray(k.projectHistoryIds) ? k.projectHistoryIds : []), ...k.projectIds].filter(id => ids.has(id)))];
+    k.pid = k.projectIds[0] || ''; // 兼容旧版本的单项目字段
   });
   S.logs.forEach(log => { log.projectIds = (log.projectIds || []).filter(id => ids.has(id)); log.hasContent = log.hasContent !== false && !!String(log.text || '').trim(); });
   S.projects.forEach(normalizeProgresses);
+}
+const TASK_STATES = new Set(['todo','doing','paused','done']);
+function normalizeTask(k) {
+  let progress = Number(k.progress);
+  if (!Number.isFinite(progress)) progress = 0;
+  progress = Math.max(0, Math.min(100, Math.round(progress)));
+  let status = TASK_STATES.has(k.status) ? k.status : (k.done ? 'done' : (progress > 0 ? 'paused' : 'todo'));
+  if (k.done === true || status === 'done' || progress >= 100) {
+    if (status !== 'done' && k.done !== true) {
+      k.resumeStatus = status === 'todo' ? 'todo' : 'paused';
+      k.resumeProgress = Math.min(99, progress);
+    }
+    k.status = 'done'; k.progress = 100; k.done = true;
+    if (!TASK_STATES.has(k.resumeStatus) || k.resumeStatus === 'done') k.resumeStatus = 'todo';
+    if (!Number.isFinite(Number(k.resumeProgress))) k.resumeProgress = 0;
+    return;
+  }
+  k.done = false;
+  if (status === 'todo') progress = 0;
+  if (status === 'paused' && progress === 0) status = 'todo';
+  if (progress > 0 && status === 'todo') status = 'paused';
+  k.status = status; k.progress = progress;
+}
+function setTaskStatus(k, status) {
+  if (!k || !TASK_STATES.has(status)) return;
+  const wasDone = k.done === true || k.status === 'done';
+  if (status === 'done') {
+    if (!wasDone) {
+      k.resumeStatus = k.status === 'doing' || k.status === 'paused' ? k.status : 'todo';
+      k.resumeProgress = Math.max(0, Math.min(99, Number(k.progress) || 0));
+      k.doneAt = Date.now();
+    }
+    k.status = 'done'; k.progress = 100; k.done = true;
+    return;
+  }
+  k.done = false; k.doneAt = null;
+  if (status === 'todo') { k.status = 'todo'; k.progress = 0; }
+  else if (status === 'paused' && !(Number(k.progress) > 0)) k.status = 'todo';
+  else k.status = status;
+  delete k.resumeStatus; delete k.resumeProgress;
+}
+function reopenTask(k) {
+  if (!k) return;
+  const status = TASK_STATES.has(k.resumeStatus) && k.resumeStatus !== 'done' ? k.resumeStatus : 'todo';
+  const progress = Math.max(0, Math.min(99, Number(k.resumeProgress) || 0));
+  k.done = false; k.doneAt = null; k.status = progress > 0 && status === 'todo' ? 'paused' : status;
+  k.progress = status === 'todo' && progress === 0 ? 0 : progress;
+  delete k.resumeStatus; delete k.resumeProgress;
+}
+function setTaskProgress(k, value) {
+  const progress = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+  if (progress >= 100) { setTaskStatus(k, 'done'); return; }
+  if (k.done || k.status === 'done') { k.done = false; k.doneAt = null; delete k.resumeStatus; delete k.resumeProgress; }
+  k.progress = progress;
+  if (progress > 0 && k.status === 'todo') k.status = 'paused';
+  if (progress === 0 && k.status === 'paused') k.status = 'todo';
+}
+const taskStateLabel = status => T(({todo:'taskTodo',doing:'taskDoing',paused:'taskPaused',done:'taskDone'})[status] || 'taskTodo');
+function taskStateMarkup(k) {
+  return `<span class="task-state-pill ${k.status}" data-task-state="${k.status}">${taskStateLabel(k.status)}</span>`;
+}
+function taskProgressMarkup(k) {
+  if (k.status !== 'doing' && k.status !== 'paused' && k.status !== 'done') return '';
+  return `<div class="task-progress" aria-label="${esc(T('taskProgress'))} ${k.progress}%"><span class="task-progress-track"><span class="task-progress-fill ${k.status}" style="width:${k.progress}%"></span></span><span class="task-progress-value">${k.progress}%</span></div>`;
 }
 let saveChain = Promise.resolve();
 function save() {
@@ -1151,18 +1262,18 @@ function seed() {
     { id: pTax,  name: T('sProj4'), stage: T('sProj4Stage'), next: T('sProj4Next'), blocker: '', status: 'done', updatedAt: now - 120*H }
   ];
   S.tasks = [
-    { id: uid(), title: T('sTask1'), prio: 1, due: y,          done: false, pid: pQ3,   createdAt: now - 50*H, doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask2'),     prio: 3, due: y3,         done: false, pid: '',     createdAt: now - 80*H, doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask3'),       prio: 1, due: t,          done: false, pid: pHome, createdAt: now - 20*H, doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask4'), prio: 2, due: shift(t,1),  done: false, pid: pHome, createdAt: now - 14*H, doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask5'),       prio: 2, due: shift(t,3),  done: false, pid: '',     createdAt: now - 10*H, doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask6'),           prio: 3, due: shift(t,4),  done: false, pid: pBlog, createdAt: now - 9*H,  doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask7'),    prio: 1, due: shift(t,2),  done: false, pid: pQ3,   createdAt: now - 8*H,  doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask8'),                     prio: 4, due: shift(t,10), done: false, pid: '',     createdAt: now - 6*H,  doneAt: null, rolls: 0 },
-    { id: uid(), title: T('sTask9'),               prio: 1, due: shift(t,-2), done: true,  pid: '',     createdAt: now - 70*H, doneAt: now - 46*H, rolls: 0 },
-    { id: uid(), title: T('sTask10'),               prio: 2, due: shift(t,-2), done: true,  pid: pTax,  createdAt: now - 66*H, doneAt: now - 40*H, rolls: 0 },
-    { id: uid(), title: T('sTask11'),       prio: 3, due: y,          done: true,  pid: '',     createdAt: now - 30*H, doneAt: now - 22*H, rolls: 0 },
-    { id: uid(), title: T('sTask12'),         prio: 2, due: shift(t,-4), done: true,  pid: pBlog, createdAt: now - 100*H, doneAt: now - 92*H, rolls: 0 }
+    { id: uid(), title: T('sTask1'), prio: 1, due: y,          done: false, pid: pQ3,   createdAt: now - 50*H, doneAt: null },
+    { id: uid(), title: T('sTask2'),     prio: 3, due: y3,         done: false, pid: '',     createdAt: now - 80*H, doneAt: null },
+    { id: uid(), title: T('sTask3'),       prio: 1, due: t,          done: false, pid: pHome, createdAt: now - 20*H, doneAt: null },
+    { id: uid(), title: T('sTask4'), prio: 2, due: shift(t,1),  done: false, pid: pHome, createdAt: now - 14*H, doneAt: null },
+    { id: uid(), title: T('sTask5'),       prio: 2, due: shift(t,3),  done: false, pid: '',     createdAt: now - 10*H, doneAt: null },
+    { id: uid(), title: T('sTask6'),           prio: 3, due: shift(t,4),  done: false, pid: pBlog, createdAt: now - 9*H,  doneAt: null },
+    { id: uid(), title: T('sTask7'),    prio: 1, due: shift(t,2),  done: false, pid: pQ3,   createdAt: now - 8*H,  doneAt: null },
+    { id: uid(), title: T('sTask8'),                     prio: 4, due: shift(t,10), done: false, pid: '',     createdAt: now - 6*H,  doneAt: null },
+    { id: uid(), title: T('sTask9'),               prio: 1, due: shift(t,-2), done: true,  pid: '',     createdAt: now - 70*H, doneAt: now - 46*H },
+    { id: uid(), title: T('sTask10'),               prio: 2, due: shift(t,-2), done: true,  pid: pTax,  createdAt: now - 66*H, doneAt: now - 40*H },
+    { id: uid(), title: T('sTask11'),       prio: 3, due: y,          done: true,  pid: '',     createdAt: now - 30*H, doneAt: now - 22*H },
+    { id: uid(), title: T('sTask12'),         prio: 2, due: shift(t,-4), done: true,  pid: pBlog, createdAt: now - 100*H, doneAt: now - 92*H }
   ];
   S.notes = [
     { id: uid(), text: T('sNote1'), tags: [T('sTag1'), T('sTag2')], createdAt: now - 26*H },
@@ -1171,19 +1282,6 @@ function seed() {
   ];
   S.meta.sample = true;
   S.meta.itemsAtExport = 0;
-}
-
-/* ---------- 昨天没做完 → 自动带到今天 ---------- */
-function rollover() {
-  const t = TODAY();
-  if (S.meta.lastOpen === t) return 0;
-  let n = 0;
-  S.tasks.forEach(k => {
-    if (!k.done && k.due && k.due < t) { k.rolls = (k.rolls || 0) + 1; k.carried = t; n++; }
-  });
-  S.meta.lastOpen = t;
-  save(true);
-  return n;
 }
 
 /* ---------- 派生数据 ---------- */
@@ -1217,6 +1315,7 @@ function normalizeProgresses(p) {
   progressesFor(p).forEach(x => {
     if (!x.id) x.id = uid();
     x.stage = String(x.stage || ''); x.next = String(x.next || '');
+    x.done = x.done === true;
     x.predecessorId = String(x.predecessorId || '');
     x.createdAt = x.createdAt || at; x.updatedAt = x.updatedAt || x.createdAt;
   });
@@ -1243,7 +1342,27 @@ function syncProjectSummary(p) {
   const latest = progressesFor(p).slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
   if (latest) { p.stage = latest.stage; p.next = latest.next; }
 }
-const tasksOfProj = id => S.tasks.filter(k => k.pid === id);
+const taskProjectIds = k => Array.isArray(k.projectIds) ? k.projectIds : (k.pid ? [k.pid] : []);
+const setTaskProjectIds = (k, ids) => {
+  k.projectHistoryIds = [...new Set([...(Array.isArray(k.projectHistoryIds) ? k.projectHistoryIds : taskProjectIds(k)), ...ids])];
+  k.projectIds = [...new Set(ids)]; k.pid = k.projectIds[0] || '';
+};
+const selectedTaskProjects = root => [...root.querySelectorAll('input[name="task-project"]:checked')].map(x => x.value);
+const taskProjectSummary = selected => selected.length === 0 ? T('optNoProj') : selected.length === 1 ? projName(selected[0]) : T('taskProjectsSelected', selected.length);
+const taskProjectChoices = selected => `<details class="task-project-picker"><summary class="task-project-summary">${esc(taskProjectSummary(selected))}</summary><div class="task-project-panel"><input class="task-project-search" type="search" placeholder="${T('taskProjectSearch')}" aria-label="${T('taskProjectSearch')}"><div class="task-project-options">${S.projects.map(p => `<label class="task-project-option"><input type="checkbox" name="task-project" value="${p.id}"${selected.includes(p.id)?' checked':''}><span>${esc(p.name)}${p.status==='done'?(LANG==='en'?' (completed)':'（已完成）'):''}</span></label>`).join('') || `<span>${T('noProjects')}</span>`}</div></div></details>`;
+function bindTaskProjectPicker(root) {
+  const picker = root.querySelector('.task-project-picker'); if (!picker) return;
+  picker.addEventListener('change', e => {
+    if (e.target.matches('input[name="task-project"]')) picker.querySelector('.task-project-summary').textContent = taskProjectSummary(selectedTaskProjects(picker));
+  });
+  const search = picker.querySelector('.task-project-search');
+  search.addEventListener('input', () => {
+    const query = search.value.trim().toLocaleLowerCase();
+    picker.querySelectorAll('.task-project-option').forEach(option => { option.hidden = !option.textContent.toLocaleLowerCase().includes(query); });
+  });
+  search.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+}
+const tasksOfProj = id => S.tasks.filter(k => taskProjectIds(k).includes(id));
 const projProgress = id => {
   const arr = tasksOfProj(id);
   const done = arr.filter(k => k.done).length;
@@ -1289,7 +1408,12 @@ function captureDrafts() {
       if (input) ui.drafts[name][key] = input.value;
     });
   };
-  capture('task', 'taskForm', [['title','tTitle'], ['prio','tPrio'], ['due','tDue'], ['pid','tPid'], ['details','tDetails']]);
+  if (ui.resetTaskDraft) {
+    ui.resetTaskDraft = false;
+  } else {
+    capture('task', 'taskForm', [['title','tTitle'], ['prio','tPrio'], ['due','tDue'], ['details','tDetails']]);
+    if ($('taskForm')) ui.drafts.task.projectIds = selectedTaskProjects($('taskForm'));
+  }
   capture('note', 'noteForm', [['text','nText'], ['tags','nTags']]);
   if (ui.resetProjectDraft) {
     ui.drafts.project = {};
@@ -1362,10 +1486,9 @@ function renderFocus() {
   const rows = [];
   od.forEach(k => rows.push(`<div class="frow"><span class="dot"></span>
     <div class="ft"><b>${esc(k.title)}</b>
-      <span>${T('fTask')}${k.pid ? ` · <b style="color:var(--accent-dark);display:inline">${esc(projName(k.pid))}</b>` : ''} · ${T('fDue', esc(k.due))} · <strong style="color:var(--danger)">${T('fOverdue', -dayDiff(TODAY(), k.due))}</strong>${k.rolls ? ` · ${T('fRolled', k.rolls)}` : ''}</span></div>
+      <span>${T('fTask')}${taskProjectIds(k).length ? ` · <b style="color:var(--accent-dark);display:inline">${esc(taskProjectIds(k).map(projName).join(' · '))}</b>` : ''} · ${T('fDue', esc(k.due))} · <strong style="color:var(--danger)">${T('fOverdue', -dayDiff(TODAY(), k.due))}</strong></span></div>
     <div class="fa"><span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span>
-      <button class="btn btn-sm" data-act="done" data-id="${k.id}">${I.check}${T('btnDone')}</button>
-      <button class="btn btn-sm" data-act="tomorrow" data-id="${k.id}">${I.fwd}${T('btnPostpone')}</button></div></div>`));
+      <button class="btn btn-sm" data-act="done" data-id="${k.id}">${I.check}${T('btnDone')}</button></div></div>`));
   st.forEach(p => { const g = projProgress(p.id);
     rows.push(`<div class="frow"><span class="dot"></span>
     <div class="ft"><b>${esc(p.name)}</b>
@@ -1377,7 +1500,6 @@ function renderFocus() {
     <div class="focus-h">${I.alert}<h2>${T('focusTitle')}</h2>
       <div class="sp">
         <span class="pill red">${T('focusPill', od.length, st.length)}</span>
-        ${od.length ? `<button class="btn btn-sm" data-act="roll-all">${I.fwd}${T('rollAll')}</button>` : ''}
       </div></div>
     <div class="focus-b">${rows.join('')}</div></div>`;
 }
@@ -1447,19 +1569,18 @@ function vFocus() {
 /* --- 待办 --- */
 function taskRow(k) {
   const od = !k.done && k.due && k.due < TODAY();
-  const pn = k.pid ? projName(k.pid) : '';
+  const projectIds = taskProjectIds(k);
   return `<div class="item pr${k.prio}${od?' od':''}${k.done?' done':''}">
     <button class="chk${k.done?' on':''}" data-act="toggle" data-id="${k.id}" aria-label="${T('ttComplete')}">${I.check}</button>
     <div class="it-main"><div class="it-title">${esc(k.title)}</div>
       <div class="it-meta">
+        ${taskStateMarkup(k)}
         <span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span>
         <span class="pill ${od?'red':(k.done?'gray':'cyan')}">${k.done ? T('doneAt', k.doneAt?clock(k.doneAt):'') : human(k.due)}</span>
-        ${pn ? `<button class="pill proj-link" data-act="filter-proj" data-id="${k.pid}" title="${T('filterByProj')}">${I.proj}${esc(pn)}</button>` : ''}
-        ${k.rolls ? `<span class="pill warn">${T('rollsPill', k.rolls)}</span>` : ''}
-        ${k.carried === TODAY() && !k.done ? `<span class="pill gray">${T('carriedPill')}</span>` : ''}
-      </div>${detailsBlock(k, false)}</div>
+        ${projectIds.map(pid => `<button class="pill proj-link" data-act="filter-proj" data-id="${pid}" title="${T('filterByProj')}">${I.proj}${esc(projName(pid))}</button>`).join('')}
+      </div>${taskProgressMarkup(k)}${detailsBlock(k, false)}</div>
     <div class="it-act">
-      ${!k.done ? `<button class="ico-btn" data-act="tomorrow" data-id="${k.id}" title="${T('ttPostpone')}">${I.fwd}</button>` : ''}
+      ${!k.done ? `<button class="task-state-btn${k.status==='doing'?' pause':''}" data-act="task-today" data-id="${k.id}" title="${T(k.status==='doing'?'taskPause':'taskStart')}">${T(k.status==='doing'?'taskPause':'taskStart')}</button>` : ''}
       <button class="ico-btn" data-act="edit-task" data-id="${k.id}" title="${T('ttEdit')}">${I.edit}</button>
       <button class="ico-btn red" data-act="del-task" data-id="${k.id}" title="${T('ttDelete')}">${I.trash}</button>
     </div></div>`;
@@ -1502,8 +1623,8 @@ function vTasks() {
   else { arr = S.tasks.slice().sort((a,b) => (a.done-b.done) || (a.prio-b.prio) || ((a.due||'9')>(b.due||'9')?1:-1)); }
 
   // 项目筛选叠加在任何 tab 之上
-  if (pf === '__none') arr = arr.filter(k => !k.pid);
-  else if (pf) arr = arr.filter(k => k.pid === pf);
+  if (pf === '__none') arr = arr.filter(k => !taskProjectIds(k).length);
+  else if (pf) arr = arr.filter(k => taskProjectIds(k).includes(pf));
 
   const segs = [
     ['today', T('segToday')],
@@ -1513,8 +1634,7 @@ function vTasks() {
     ['done', T('segDone')]
   ];
   const openProjs = S.projects.filter(p => p.status !== 'done');
-  return head(T('tasksHead'), T('tasksSub'),
-    od ? `<button class="btn btn-danger" data-act="roll-all">${I.fwd}${T('rollAllOverdue')}</button>` : '')
+  return head(T('tasksHead'), T('tasksSub'))
   + `<div class="card"><div class="card-h">${I.plus}<h2>${T('addOneTask')}</h2>
       <span class="hint">${T('addTaskHint')}</span></div><div class="card-b">
       <form id="taskForm">
@@ -1525,11 +1645,8 @@ function vTasks() {
           </select></div>
         </div>
         <div class="form">
-          <div class="f" style="flex:1 1 158px"><label>${T('lblDue')}</label><input type="date" id="tDue" value="${esc(draft.due || t)}"></div>
-          <div class="f grow"><label>${T('lblLinkProj')}</label><select id="tPid">
-            <option value="">${T('optNoProj')}</option>
-            ${S.projects.map(p => `<option value="${p.id}"${(draft.pid || pf)===p.id?' selected':''}>${esc(p.name)}${p.status==='done'?(LANG==='en'?' (completed)':'（已完成）'):''}</option>`).join('')}
-          </select></div>
+          <div class="f" style="flex:1 1 158px"><label>${T('lblDue')}</label><input type="date" id="tDue" value="${esc(draft.due === undefined ? t : draft.due)}"></div>
+          <div class="f grow"><label>${T('lblLinkProj')}</label>${taskProjectChoices(Array.isArray(draft.projectIds) ? draft.projectIds : (pf && pf !== '__none' ? [pf] : []))}</div>
           <button class="btn btn-primary" type="submit">${I.plus}${T('btnAdd')}</button>
         </div>
         <div class="f" style="margin-top:11px"><label>${T('lblDetails')}</label><textarea id="tDetails" placeholder="${T('phTaskDetails')}" maxlength="1200">${esc(draft.details)}</textarea></div>
@@ -1554,7 +1671,10 @@ function vTasks() {
 function vNotes() {
   const tags = allTags(), q = ui.noteQ.trim().toLowerCase();
   const draft = ui.drafts.note;
+  const implementedCount = S.notes.filter(n => !!n.implementedAt).length;
   let arr = S.notes.slice().sort((a,b) => b.createdAt - a.createdAt);
+  if (ui.noteStatusFilter === 'pending') arr = arr.filter(n => !n.implementedAt);
+  if (ui.noteStatusFilter === 'implemented') arr = arr.filter(n => !!n.implementedAt);
   if (ui.tagFilter) arr = arr.filter(n => (n.tags||[]).includes(ui.tagFilter));
   if (q) arr = arr.filter(n => n.text.toLowerCase().includes(q) || (n.tags||[]).join(' ').toLowerCase().includes(q));
   return head(T('notesHead'), T('notesSub', S.notes.length, tags.length))
@@ -1570,23 +1690,28 @@ function vNotes() {
   + `<div class="card"><div class="card-h">${I.tag}<h2>${T('myNotes')}</h2>
       <div class="sp"><input type="text" id="nQ" placeholder="${T('phSearch')}" value="${esc(ui.noteQ)}" style="width:190px"></div></div>
       <div class="card-b">
+        <div class="tagbar" style="margin-bottom:14px">
+          <button class="tag-chip${ui.noteStatusFilter==='all'?' on':''}" data-act="note-status-filter" data-status="all">${T('filterAll')} ${S.notes.length}</button>
+          <button class="tag-chip${ui.noteStatusFilter==='pending'?' on':''}" data-act="note-status-filter" data-status="pending">${T('notePending')} ${S.notes.length-implementedCount}</button>
+          <button class="tag-chip${ui.noteStatusFilter==='implemented'?' on':''}" data-act="note-status-filter" data-status="implemented">${T('noteImplemented')} ${implementedCount}</button>
+        </div>
         ${tags.length ? `<div class="tagbar" style="margin-bottom:14px">
           <button class="tag-chip${ui.tagFilter?'':' on'}" data-act="tag" data-t="">${T('filterAll')} ${S.notes.length}</button>
           ${tags.map(([t2,c]) => `<button class="tag-chip${ui.tagFilter===t2?' on':''}" data-act="tag" data-t="${esc(t2)}">${esc(t2)} ${c}</button>`).join('')}
         </div>` : ''}
         ${arr.length ? `<div class="notes">${arr.map(n => `<div class="note">
-          <button class="ico-btn red del" data-act="del-note" data-id="${n.id}" title="${T('ttDelete')}">${I.trash}</button>
+          <div class="note-actions"><button class="ico-btn" data-act="edit-note" data-id="${n.id}" title="${T('ttEdit')}" aria-label="${T('ttEdit')}">${I.edit}</button><button class="ico-btn red" data-act="del-note" data-id="${n.id}" title="${T('ttDelete')}" aria-label="${T('ttDelete')}">${I.trash}</button></div>
           <p>${esc(n.text)}</p>
-          <div class="nf">${(n.tags||[]).map(x => `<button class="pill teal" data-act="tag" data-t="${esc(x)}">#${esc(x)}</button>`).join('')}
+          <div class="nf"><button class="note-status${n.implementedAt?'':' pending'}" data-act="toggle-note-implemented" data-id="${n.id}" title="${T(n.implementedAt?'noteMarkPending':'noteMarkImplemented')}" aria-label="${T(n.implementedAt?'noteMarkPending':'noteMarkImplemented')}" aria-pressed="${!!n.implementedAt}">${T(n.implementedAt?'noteImplemented':'notePending')}</button>${(n.tags||[]).map(x => `<button class="pill teal" data-act="tag" data-t="${esc(x)}">#${esc(x)}</button>`).join('')}${n.implementedAt ? `<span class="note-implemented-time">${T('noteImplementedAt', clock(n.implementedAt))}</span>` : ''}
           <time>${clock(n.createdAt)}</time></div></div>`).join('')}</div>`
-        : emptyBox(ui.tagFilter||q ? T('notesNoMatch') : T('notesEmpty'),'bulb')}
+        : emptyBox(ui.tagFilter||q||ui.noteStatusFilter!=='all' ? T('notesNoMatch') : T('notesEmpty'),'bulb')}
       </div></div>`;
 }
 
 /* --- 项目 --- */
 function progressMap(p) {
   const childrenOf = id => progressesFor(p).filter(x => x.predecessorId === id);
-  const node = x => `<div class="progress-node"><div class="progress-node-h"><b>${esc(x.stage) || T('vUnset')}</b><span class="sp"><button class="ico-btn" data-act="edit-progress" data-pid="${p.id}" data-id="${x.id}" title="${T('editProgress')}">${I.edit}</button><button class="ico-btn red" data-act="del-progress" data-pid="${p.id}" data-id="${x.id}" title="${T('deleteProgress')}">${I.trash}</button></span></div><span>${T('kNext')}：${esc(x.next) || T('vUnset')}</span><small>${clock(x.updatedAt)}</small></div>`;
+  const node = x => `<div class="progress-node${x.done?' done':''}"><div class="progress-node-h"><b>${esc(x.stage) || T('vUnset')}</b><span class="sp"><button class="progress-check${x.done?' on':''}" data-act="toggle-progress-done" data-pid="${p.id}" data-id="${x.id}" title="${T(x.done?'reopenProgress':'markProgressDone')}" aria-label="${T(x.done?'reopenProgress':'markProgressDone')}" aria-pressed="${x.done}">${I.check}</button><button class="ico-btn" data-act="edit-progress" data-pid="${p.id}" data-id="${x.id}" title="${T('editProgress')}">${I.edit}</button><button class="ico-btn red" data-act="del-progress" data-pid="${p.id}" data-id="${x.id}" title="${T('deleteProgress')}">${I.trash}</button></span></div><span>${T('kNext')}：${esc(x.next) || T('vUnset')}</span><small>${clock(x.updatedAt)}</small></div>`;
   const lanesFrom = x => {
     const children = childrenOf(x.id);
     if (!children.length) return [[x]];
@@ -1613,7 +1738,8 @@ function projCard(p, options = {}) {
     <div class="kv"><span class="k">${T('kBlock')}</span><span class="v${p.blocker?' em':' na'}">${esc(p.blocker) || T('vNoBlock')}</span></div>
     ${detailsBlock(p, true)}
     <div class="kv"><span class="k">${T('logTimeline')}</span><button class="btn btn-sm" data-act="log-project" data-id="${p.id}">${T('logCount', logCount)}</button></div>
-    ${projTasksBlock(p)}
+    ${projTasksBlock(p, detail)}
+    ${detail ? projFormerTasksBlock(p) : ''}
     <div class="kv" style="padding-top:8px"><span class="k">${T('kUpdated')}</span><span class="v na" style="font-size:12px">${clock(p.updatedAt)}</span></div></div>`;
 }
 function projectListCard(p) {
@@ -1621,13 +1747,19 @@ function projectListCard(p) {
   return `<button class="proj project-list-card" data-act="open-project-detail" data-id="${p.id}"><span class="proj-h"><b>${esc(p.name)}</b><span class="pill ${s.c}">${s.n}</span></span><span class="project-list-meta">${T('progressCount', progressesFor(p).length)} · ${T('kUpdated')} ${clock(p.updatedAt)}</span><span class="project-list-open">${T('projectDetail')}</span></button>`;
 }
 /* 项目卡里的「关联待办」区块：进度条 + 未完成任务 + 快捷加任务 */
-function projTasksBlock(p) {
+function projTasksBlock(p, detail = false) {
   const g = projProgress(p.id);
   if (!g.total) {
     return `<div class="ptasks empty-t">
       <div class="pt-h"><span class="pt-t">${T('linkedTasks')}</span>
         <button class="btn btn-sm" data-act="add-task-to" data-id="${p.id}">${I.plus}${T('addOne')}</button></div>
       <div class="pt-none">${T('ptNone')}</div></div>`;
+  }
+  if (detail) {
+    const tasks = tasksOfProj(p.id);
+    return `<div class="ptasks"><div class="pt-h"><span class="pt-t">${T('linkedTasks')}</span><span class="pt-c">${g.done}/${g.total}${g.od.length ? ` · <b class="rd">${T('ptOverdue', g.od.length)}</b>` : ''}</span><button class="btn btn-sm" data-act="add-task-to" data-id="${p.id}">${I.plus}${T('addOne')}</button></div>
+      <div class="pt-bar"><span class="pt-fill${g.pct===100?' full':''}" style="width:${g.pct}%"></span></div>
+      <div class="pt-table-wrap"><table class="pt-table"><thead><tr><th>${T('lblStatus')}</th><th>${T('taskTableTitle')}</th><th>${T('taskTableDetails')}</th><th>${T('taskTablePriority')}</th><th>${T('taskTableDue')}</th></tr></thead><tbody>${tasks.map(k => `<tr class="${k.done?'pt-completed':''}"><td><button class="pt-chk${k.done?' on':''}" data-act="toggle" data-id="${k.id}" title="${T(k.done?'reopenTask':'ttComplete')}" aria-label="${T(k.done?'reopenTask':'ttComplete')}" aria-pressed="${k.done}">${I.check}</button><div style="margin-top:5px">${taskStateMarkup(k)}</div>${!k.done ? `<button class="task-state-btn${k.status==='doing'?' pause':''}" style="margin-top:5px" data-act="task-today" data-id="${k.id}">${T(k.status==='doing'?'taskPause':'taskStart')}</button>` : ''}${k.done && k.doneAt ? `<span class="pt-completed-at">${clock(k.doneAt)}</span>` : ''}</td><td>${esc(k.title)}${taskProgressMarkup(k)}</td><td>${k.details ? esc(k.details) : `<span class="pt-empty-detail">—</span>`}</td><td><span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span></td><td>${human(k.due)}</td></tr>`).join('')}</tbody></table></div></div>`;
   }
   const show = g.open.slice().sort((a,b) => (a.prio-b.prio) || ((a.due||'9')>(b.due||'9')?1:-1)).slice(0, 3);
   const more = g.open.length - show.length;
@@ -1648,6 +1780,12 @@ function projTasksBlock(p) {
     : `<div class="pt-done">${I.ok}<span>${T('ptAllDone', g.total)}</span></div>`}
   </div>`;
 }
+function projFormerTasksBlock(p) {
+  const former = S.tasks.filter(k => Array.isArray(k.projectHistoryIds) && k.projectHistoryIds.includes(p.id) && !taskProjectIds(k).includes(p.id))
+    .sort((a,b) => (b.doneAt||b.createdAt||0)-(a.doneAt||a.createdAt||0));
+  if (!former.length) return '';
+  return `<div class="pt-history"><span class="pt-t">${T('formerLinkedTasks')} · ${former.length}</span><div class="pt-history-list">${former.map(k => `<div class="pt-i${k.done?' pt-completed':''}"><span class="pt-n">${esc(k.title)}</span><span class="pt-d">${T(k.done?'formerTaskDone':'formerTaskOpen')}</span></div>`).join('')}</div></div>`;
+}
 function vProjects() {
   const draft = ui.drafts.project;
   const mode = draft.mode || 'new';
@@ -1658,7 +1796,7 @@ function vProjects() {
     return (r[a.status] - r[b.status]) || (b.updatedAt - a.updatedAt);
   });
   const st = stuck().length;
-  const linked = S.tasks.filter(k => k.pid && projById(k.pid)).length;
+  const linked = S.tasks.filter(k => taskProjectIds(k).some(id => projById(id))).length;
   return head(T('projHead'), T('projSub', S.projects.filter(p=>p.status!=='done').length, st, S.projects.filter(p=>p.status==='done').length, linked))
   + `<div class="card"><div class="card-h">${I.plus}<h2>${mode === 'new' ? T('newProj') : T('projectModeUpdate')}</h2><span class="hint">${T('newProjHint')}</span></div><div class="card-b">
       <form id="projForm">
@@ -1699,9 +1837,10 @@ function vLogs() {
   const cells = Array.from({length: 42}, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return ds(d); });
   const dayLogs = logsFor(ui.logProject, project && !ui.logDate ? '' : ui.logDate);
   const currentLog = ui.logDate ? dayLogs.find(log => log.hasContent && String(log.text || '').trim()) : null;
+  const viewingLog = !!currentLog && !ui.logEditing;
   const marked = new Set(logsFor(ui.logProject, '').filter(log => log.hasContent).map(log => log.date));
   const title = project ? `${esc(project.name)} · ${T('logTimeline')}` : T('logsHead');
-  const logForm = ui.logDate ? `<form id="logForm" data-log-id="${currentLog ? currentLog.id : ''}" data-log-mode="${currentLog ? 'view' : 'edit'}"><div class="f" style="margin-bottom:10px"><label>${T('logContent')}</label><textarea id="logText" maxlength="3000" required${currentLog ? ' readonly' : ''}>${esc(currentLog ? currentLog.text : '')}</textarea></div><div class="form"><div class="f grow"><label>${T('logProjects')}</label><select id="logProjects" multiple size="${Math.min(4, Math.max(2, S.projects.length))}"${currentLog ? ' disabled' : ''}>${S.projects.map(p => `<option value="${p.id}"${(currentLog ? (currentLog.projectIds||[]).includes(p.id) : project&&p.id===project.id) ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div><button class="btn btn-primary" type="submit">${T(currentLog ? 'logEdit' : 'logSave')}</button>${currentLog ? `<button class="btn btn-danger" type="button" data-act="delete-log" data-id="${currentLog.id}">${T('logDelete')}</button>` : ''}</div></form>` : '';
+  const logForm = ui.logDate ? `<form id="logForm" data-log-id="${currentLog ? currentLog.id : ''}" data-log-mode="${viewingLog ? 'view' : 'edit'}"><div class="f" style="margin-bottom:10px"><label>${T('logContent')}</label><textarea id="logText" maxlength="3000" required${viewingLog ? ' readonly' : ''}>${esc(currentLog ? currentLog.text : '')}</textarea></div><div class="form"><div class="f grow"><label>${T('logProjects')}</label>${viewingLog ? `<div class="log-project-tags">${(currentLog.projectIds||[]).map(id => projName(id)).filter(Boolean).map(name => `<span class="log-project-tag">${esc(name)}</span>`).join('') || `<span class="log-project-empty">${T('noProjLabel')}</span>`}</div>` : `<select id="logProjects" multiple size="${Math.min(4, Math.max(2, S.projects.length))}">${S.projects.map(p => `<option value="${p.id}"${(currentLog ? (currentLog.projectIds||[]).includes(p.id) : project&&p.id===project.id) ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select>`}</div>${viewingLog ? `<button class="btn btn-primary" type="button" data-act="edit-log">${T('logEdit')}</button>` : `<button class="btn btn-primary" type="submit">${T('logSave')}</button>`}${viewingLog ? `<button class="btn btn-danger" type="button" data-act="delete-log" data-id="${currentLog.id}">${T('logDelete')}</button>` : ''}</div></form>` : '';
   return head(title, project ? T('logCount', logsFor(project.id, '').length) : T('logsSub'), project ? `<button class="btn" data-act="logs-all">${T('logBack')}</button>` : '')
   + `<div class="card"><div class="card-h"><h2>${ui.logMonth}</h2><div class="sp"><button class="btn btn-sm" data-act="log-month" data-d="-1">←</button><button class="btn btn-sm" data-act="log-month" data-d="1">→</button></div></div><div class="card-b"><div class="log-cal-head">${WD.map(w => `<span>${w}</span>`).join('')}</div><div class="log-cal">${cells.map(date => { const note = holidayNote(date); return `<button class="${date.slice(0,7)!==ui.logMonth?'out ':''}${marked.has(date)?'has-log ':''}${note?'holiday ':''}${date===ui.logDate?'on':''}" data-act="log-date" data-id="${date}"><span>${date.slice(-2).replace(/^0/,'')}</span>${note ? `<span class="log-day-note">${note}</span>` : ''}</button>`; }).join('')}</div></div></div>`
   + `<div class="card" style="margin-top:16px"><div class="card-h"><h2>${project && !ui.logDate ? T('logTimeline') : ui.logDate}</h2></div><div class="card-b">${logForm}${!ui.logDate ? `<div class="log-list" style="margin-top:15px">${dayLogs.length ? dayLogs.map(log => `<div class="log-row"><div class="log-row-main"><b>${esc((log.projectIds||[]).map(projName).filter(Boolean).join(' · ') || '未关联项目')}</b><p>${esc(log.text)}</p></div></div>`).join('') : emptyBox(T('logEmpty'),'note')}</div>` : ''}</div></div>`;
@@ -1749,7 +1888,7 @@ function vReview() {
   + (() => {
       // 本周完成的任务按项目归集，看精力实际花在哪
       const byP = {};
-      doneArr.forEach(k => { const key = k.pid && projById(k.pid) ? k.pid : '__none'; byP[key] = (byP[key]||0)+1; });
+      doneArr.forEach(k => { const ids = taskProjectIds(k).filter(id => projById(id)); (ids.length ? ids : ['__none']).forEach(key => { byP[key] = (byP[key]||0)+1; }); });
       const ent = Object.entries(byP).sort((a,b) => b[1]-a[1]);
       if (!ent.length) return '';
       const mx2 = Math.max(...ent.map(x => x[1]));
@@ -1769,7 +1908,7 @@ function vReview() {
       <div class="card-b">${(od.length || st.length) ? `
         ${st.map(p => { const g = projProgress(p.id);
           return `<div class="blk"><b>${esc(p.name)}</b> · ${T('blkProjStuck')}<span>${esc(p.blocker||T('fNoReason'))}</span>${p.next?`<br><span style="color:var(--text-3)">${T('blkNextStep')}${esc(p.next)}</span>`:''}${g.total?`<br><span style="color:var(--text-3)">${T('blkLinked', g.done, g.total, g.od.length)}</span>`:''}</div>`; }).join('')}
-        ${od.map(k => `<div class="blk"><b>${esc(k.title)}</b>${k.pid?` <span class="pill teal" style="font-size:10px">${esc(projName(k.pid))}</span>`:''} · ${T('blkTaskOverdue')} <span>${T('blkDays', -dayDiff(TODAY(),k.due))}</span>${k.rolls?T('blkRolls', k.rolls):''}</div>`).join('')}`
+        ${od.map(k => `<div class="blk"><b>${esc(k.title)}</b>${taskProjectIds(k).map(pid => ` <span class="pill teal" style="font-size:10px">${esc(projName(pid))}</span>`).join('')} · ${T('blkTaskOverdue')} <span>${T('blkDays', -dayDiff(TODAY(),k.due))}</span></div>`).join('')}`
         : emptyBox(T('noBlockers'),'ok')}</div></div>`;
 }
 
@@ -1885,10 +2024,10 @@ async function act(a, el) {
       return;
     }
     case 'add-task-to': {
-      ui.view = 'tasks'; ui.projFilter = id; ui.taskFilter = 'all';
+      ui.view = 'tasks'; ui.projFilter = id; ui.taskFilter = 'all'; ui.drafts.task.projectIds = [id];
       render();
       setTimeout(() => {
-        const s = $('tPid'); if (s) s.value = id;
+        const s = $('taskForm')?.querySelector(`input[name="task-project"][value="${id}"]`); if (s) s.checked = true;
         const i = $('tTitle');
         if (i) { i.scrollIntoView({ block: 'center', behavior: 'smooth' }); i.focus(); }
       }, 90);
@@ -1896,14 +2035,25 @@ async function act(a, el) {
       return;
     }
     case 'tag': ui.tagFilter = el.dataset.t; ui.view = 'notes'; render(); return;
+    case 'note-status-filter': ui.noteStatusFilter = el.dataset.status; render(); return;
+    case 'toggle-note-implemented': {
+      const note = S.notes.find(x => x.id === id); if (!note) return;
+      note.implementedAt = note.implementedAt ? null : Date.now();
+      save(true); render(); return;
+    }
     case 'log-project': ui.logProject = id; ui.logDate = ''; ui.logMonth = TODAY().slice(0,7); ui.view = 'logs'; render(); return;
     case 'logs-all': ui.logProject = ''; ui.logDate = TODAY(); ui.logMonth = TODAY().slice(0,7); render(); return;
-    case 'log-date': ui.logDate = id; ui.logMonth = id.slice(0,7); render(); return;
+    case 'log-date': ui.logDate = id; ui.logMonth = id.slice(0,7); ui.logEditing = false; render(); return;
+    case 'edit-log': ui.logEditing = true; render(); return;
     case 'log-month': { const m = new Date(ui.logMonth + '-01T00:00:00'); m.setMonth(m.getMonth() + Number(el.dataset.d)); ui.logMonth = ds(m).slice(0,7); render(); return; }
     case 'delete-log': { if (!window.confirm(T('logDeleteConfirm'))) return; S.logs = S.logs.filter(x => x.id !== id); save(); render(); return; }
     case 'toggle-details': ui.expandedDetails[id] = !ui.expandedDetails[id]; render(); return;
     case 'toggle-progress-map': ui.progressMaps[id] = !ui.progressMaps[id]; render(); return;
     case 'edit-progress': { openProgressEdit(el.dataset.pid, id); return; }
+    case 'toggle-progress-done': {
+      const p = projById(el.dataset.pid), record = progressById(p, id); if (!p || !record) return;
+      record.done = !record.done; p.updatedAt = Date.now(); save(true); render(); return;
+    }
     case 'del-progress': {
       const p = projById(el.dataset.pid), record = progressById(p, id); if (!p || !record) return;
       if (!window.confirm('删除这条跟进记录后，它的后续记录会保留为独立分支。确定删除吗？')) return;
@@ -1914,32 +2064,25 @@ async function act(a, el) {
 
     case 'toggle': case 'done': {
       const k = tById(id); if (!k) return;
-      k.done = a === 'done' ? true : !k.done;
-      k.doneAt = k.done ? Date.now() : null;
-      if (k.pid) { const p = projById(k.pid); if (p) p.updatedAt = Date.now(); }
+      if (a === 'done' || !k.done) setTaskStatus(k, 'done');
+      else reopenTask(k);
+      taskProjectIds(k).forEach(pid => { const p = projById(pid); if (p) p.updatedAt = Date.now(); });
       save(); render();
       if (k.done) {
         // 关联项目的任务全做完时给一句提示
-        if (k.pid) {
-          const g = projProgress(k.pid);
-          toast(g.total && g.done === g.total ? T('tProjCleared', projName(k.pid)) : T('tProjProgress', projName(k.pid), g.done, g.total));
+        if (taskProjectIds(k).length) {
+          const pid = taskProjectIds(k)[0], g = projProgress(pid);
+          toast(g.total && g.done === g.total ? T('tProjCleared', projName(pid)) : T('tProjProgress', projName(pid), g.done, g.total));
         } else toast(T('tCompleted', k.title.slice(0, 18)));
       }
       return;
     }
-    case 'tomorrow': {
-      const k = tById(id); if (!k) return;
-      k.due = shift(TODAY(), 1); k.rolls = (k.rolls||0) + 1; k.carried = null;
-      save(); render(); toast(T('tPostponed'));
-      return;
-    }
-    case 'roll-all': {
-      const od = overdue(); if (!od.length) return;
-      if (!await confirmBox(T('mRollTitle'), T('mRollBody', od.length, shift(TODAY(),1)), T('mRollOk'))) return;
-      const tm = shift(TODAY(), 1);
-      od.forEach(k => { k.due = tm; k.rolls = (k.rolls||0)+1; k.carried = null; });
-      save(true); render(); toast(T('tPostponedN', od.length));
-      return;
+    case 'task-today': {
+      const k = tById(id); if (!k || k.done) return;
+      if (k.status === 'doing') setTaskStatus(k, k.progress > 0 ? 'paused' : 'todo');
+      else setTaskStatus(k, 'doing');
+      taskProjectIds(k).forEach(pid => { const p = projById(pid); if (p) p.updatedAt = Date.now(); });
+      save(); render(); return;
     }
     case 'edit-task': { openTaskEdit(id); return; }
     case 'del-task': {
@@ -1948,6 +2091,7 @@ async function act(a, el) {
       S.tasks = S.tasks.filter(x => x.id !== id); save(true); render(); toast(T('tDeleted'));
       return;
     }
+    case 'edit-note': { openNoteEdit(id); return; }
     case 'del-note': {
       if (!await confirmBox(T('mDelNoteTitle'), T('mDelNoteBody'), T('del'), true)) return;
       var noteTarget = S.notes.find(x => x.id === id);
@@ -1964,12 +2108,13 @@ async function act(a, el) {
           T('mDelProjLinked', esc(p.name), linked.length),
           [{ n: T('mKeepTasks'), v: 'keep' }, { n: T('mDelAll'), v: 'all' }]);
         if (!mode) return;
-        if (mode === 'all') S.tasks = S.tasks.filter(x => x.pid !== id);
-        else S.tasks.forEach(x => { if (x.pid === id) x.pid = ''; });
+        if (mode === 'all') S.tasks = S.tasks.filter(x => !taskProjectIds(x).includes(id));
+        else S.tasks.forEach(x => { if (taskProjectIds(x).includes(id)) setTaskProjectIds(x, taskProjectIds(x).filter(pid => pid !== id)); });
       } else {
         if (!await confirmBox(T('mDelProjTitle'), T('mDelProjBody', esc(p.name)), T('del'), true)) return;
       }
       S.projects = S.projects.filter(x => x.id !== id);
+      S.tasks.forEach(x => { if (Array.isArray(x.projectHistoryIds)) x.projectHistoryIds = x.projectHistoryIds.filter(pid => pid !== id); });
       if (ui.projFilter === id) ui.projFilter = '';
       save(true); render(); toast(T('tDeleted'));
       return;
@@ -2039,23 +2184,52 @@ async function doImportFile(file) {
   } catch (e) { toast(e.message || T('tReadFail'), true); }
 }
 
+const parseNoteTags = value => [...new Set((value || '').split(/[,，;；\s]+/).map(x => x.replace(/^#/, '').trim()).filter(Boolean).slice(0, 6))];
+
+/* --- 灵感编辑弹层 --- */
+function openNoteEdit(id) {
+  const note = S.notes.find(x => x.id === id); if (!note) return;
+  const m = document.createElement('div');
+  m.className = 'mask';
+  m.innerHTML = `<form class="modal" style="max-width:470px"><h3>${T('mEditNote')}</h3>
+    <div class="f" style="margin-bottom:11px"><label for="en_text">${T('lblIdea')}</label><textarea id="en_text" maxlength="1200" required>${esc(note.text)}</textarea></div>
+    <div class="f" style="margin-bottom:18px"><label for="en_tags">${T('lblTags')}</label><input type="text" id="en_tags" maxlength="120" value="${esc((note.tags||[]).join(', '))}" placeholder="${T('phTags')}"></div>
+    <div class="ma"><button class="btn" type="button" data-r="0">${T('cancel')}</button><button class="btn btn-primary" type="submit">${I.save}${T('save')}</button></div></form>`;
+  m.addEventListener('click', e => {
+    if (e.target === m || e.target.closest('[data-r="0"]')) m.remove();
+  });
+  m.querySelector('form').addEventListener('submit', e => {
+    e.preventDefault();
+    const value = m.querySelector('#en_text').value.trim();
+    if (!value) { toast(T('tNeedContent'), true); return; }
+    note.text = value;
+    note.tags = parseNoteTags(m.querySelector('#en_tags').value);
+    note.updatedAt = Date.now();
+    m.remove(); save(true); render(); toast(T('tSaved'));
+  });
+  document.body.appendChild(m);
+  m.querySelector('#en_text').focus();
+}
+
 /* --- 任务编辑弹层 --- */
 function openTaskEdit(id) {
   const k = tById(id); if (!k) return;
+  const taskStatusOptions = [['todo','taskTodo'],['doing','taskDoing'],['paused','taskPaused'],['done','taskDone']];
   const m = document.createElement('div');
   m.className = 'mask';
   m.innerHTML = `<div class="modal" style="max-width:470px"><h3>${T('mEditTask')}</h3>
     <div class="f" style="margin-bottom:11px"><label>${T('lblWhat')}</label><input type="text" id="et_title" value="${esc(k.title)}" maxlength="140"></div>
+    <div class="form" style="margin-bottom:11px">
+      <div class="f grow"><label>${T('taskStatus')}</label><select id="et_status">${taskStatusOptions.map(([value,label]) => `<option value="${value}"${k.status===value?' selected':''}>${T(label)}</option>`).join('')}</select></div>
+      <div class="f grow"><label>${T('taskProgress')}</label><div class="task-progress-editor"><input type="range" id="et_progress" aria-label="${T('taskProgress')}" min="0" max="100" step="1" value="${k.progress}"><output id="et_progress_value">${k.progress}%</output></div></div>
+    </div>
     <div class="form" style="margin-bottom:11px">
       <div class="f grow"><label>${T('lblPrio')}</label><select id="et_prio">
         ${Object.entries(PRIO).map(([v,p]) => `<option value="${v}"${Number(k.prio)===Number(v)?' selected':''}>${p.n}${LANG==='en'?` (${p.s})`:`（${p.s}）`}</option>`).join('')}
       </select></div>
       <div class="f grow"><label>${T('lblDue')}</label><input type="date" id="et_due" value="${k.due || ''}"></div>
     </div>
-    <div class="f" style="margin-bottom:18px"><label>${T('lblLinkProj')}</label><select id="et_pid">
-      <option value="">${T('optNoProj')}</option>
-      ${S.projects.map(p => `<option value="${p.id}"${k.pid===p.id?' selected':''}>${esc(p.name)}${p.status==='done'?(LANG==='en'?' (completed)':'（已完成）'):''}</option>`).join('')}
-    </select></div>
+    <div class="f" style="margin-bottom:18px"><label>${T('lblLinkProj')}</label>${taskProjectChoices(taskProjectIds(k))}</div>
     <div class="f" style="margin-bottom:18px"><label>${T('lblDetails')}</label><textarea id="et_details" maxlength="1200">${esc(k.details)}</textarea></div>
     <div class="ma"><button class="btn" data-r="0">${T('cancel')}</button><button class="btn btn-primary" data-r="1">${I.save}${T('save')}</button></div></div>`;
   m.addEventListener('click', e => {
@@ -2064,18 +2238,37 @@ function openTaskEdit(id) {
     if (b.dataset.r === '1') {
       const t = m.querySelector('#et_title').value.trim();
       if (!t) { toast(T('tNeedTitle'), true); return; }
+      const requestedStatus = m.querySelector('#et_status').value;
+      const requestedProgress = Number(m.querySelector('#et_progress').value);
       k.title = t;
       k.prio = Number(m.querySelector('#et_prio').value);
       k.due = m.querySelector('#et_due').value || '';
       k.details = m.querySelector('#et_details').value.trim();
-      const np = m.querySelector('#et_pid').value;
-      if (np !== k.pid) { [k.pid, np].forEach(x => { const p = projById(x); if (p) p.updatedAt = Date.now(); }); }
-      k.pid = np;
+      if (requestedStatus === 'done' || requestedProgress >= 100) setTaskStatus(k, 'done');
+      else {
+        if (k.done || k.status === 'done') { k.done = false; k.doneAt = null; k.progress = 0; delete k.resumeStatus; delete k.resumeProgress; }
+        k.status = requestedStatus;
+        if (requestedStatus === 'todo') k.progress = 0;
+        setTaskProgress(k, requestedProgress);
+      }
+      const projectIds = selectedTaskProjects(m);
+      [...taskProjectIds(k), ...projectIds].forEach(pid => { const p = projById(pid); if (p) p.updatedAt = Date.now(); });
+      setTaskProjectIds(k, projectIds);
       save(true); toast(T('tSaved'));
     }
     m.remove(); render();
   });
   document.body.appendChild(m);
+  const statusSelect = m.querySelector('#et_status'), progressInput = m.querySelector('#et_progress'), progressValue = m.querySelector('#et_progress_value');
+  const syncProgressEditor = () => {
+    if (statusSelect.value === 'done') { progressInput.value = '100'; progressInput.disabled = true; }
+    else { progressInput.disabled = false; if (Number(progressInput.value) >= 100) progressInput.value = '99'; }
+    progressValue.value = progressInput.value + '%'; progressValue.textContent = progressValue.value;
+  };
+  statusSelect.addEventListener('change', syncProgressEditor);
+  progressInput.addEventListener('input', () => { progressValue.value = progressInput.value + '%'; progressValue.textContent = progressValue.value; });
+  syncProgressEditor();
+  bindTaskProjectPicker(m);
   setTimeout(() => { const i = m.querySelector('#et_title'); if (i) { i.focus(); i.select(); } }, 30);
 }
 
@@ -2120,19 +2313,21 @@ function openProgressEdit(projectId, recordId) {
 /* --- 表单与事件绑定 --- */
 function bind() {
   const tf = $('taskForm');
+  if (tf) bindTaskProjectPicker(tf);
   if (tf) tf.onsubmit = e => {
     e.preventDefault();
     const v = $('tTitle').value.trim();
     if (!v) { toast(T('tNeedContent'), true); return; }
-    const pid = $('tPid') ? $('tPid').value : '';
-    S.tasks.unshift({ id: uid(), title: v, prio: Number($('tPrio').value), due: $('tDue').value || '', done: false, pid: pid, details: $('tDetails').value.trim(), createdAt: Date.now(), doneAt: null, rolls: 0 });
-    if (pid) { const p = projById(pid); if (p) p.updatedAt = Date.now(); }
+    const projectIds = selectedTaskProjects(tf);
+    S.tasks.unshift({ id: uid(), title: v, prio: Number($('tPrio').value), due: $('tDue').value || '', done: false, status: 'todo', progress: 0, projectIds, projectHistoryIds: projectIds.slice(), pid: projectIds[0] || '', details: $('tDetails').value.trim(), createdAt: Date.now(), doneAt: null });
+    projectIds.forEach(pid => { const p = projById(pid); if (p) p.updatedAt = Date.now(); });
     // 加到未来的任务，自动跳到「即将到来」，否则留在今天
     const due = $('tDue').value || '';
     ui.taskFilter = (due && due > TODAY()) ? 'upcoming' : 'today';
-    ui.drafts.task = {};
+    ui.drafts.task = { title: '', prio: '2', due: '', details: '', projectIds: [] };
+    ui.resetTaskDraft = true;
     save(true); render();
-    toast(pid ? T('tAddedTo', projName(pid)) : T('tAdded'));
+    toast(projectIds.length === 1 ? T('tAddedTo', projName(projectIds[0])) : T('tAdded'));
     setTimeout(() => { const i = $('tTitle'); if (i) i.focus(); }, 40);
   };
   const nf = $('noteForm');
@@ -2140,8 +2335,7 @@ function bind() {
     e.preventDefault();
     const v = $('nText').value.trim();
     if (!v) { toast(T('tNeedContent'), true); return; }
-    const tags = ($('nTags').value || '').split(/[,，;；\s]+/).map(x => x.replace(/^#/, '').trim()).filter(Boolean).slice(0, 6);
-    S.notes.unshift({ id: uid(), text: v, tags: [...new Set(tags)], createdAt: Date.now() });
+    S.notes.unshift({ id: uid(), text: v, tags: parseNoteTags($('nTags').value), createdAt: Date.now() });
     if(window.pushRemoteNote)pushRemoteNote(S.notes[0]);
     ui.drafts.note = {};
     save(true); render(); toast(T('tNoted'));
@@ -2183,21 +2377,14 @@ function bind() {
   if (lf) lf.onsubmit = e => {
     e.preventDefault(); const text = $('logText').value.trim(); if (!text) return;
     const current = lf.dataset.logId ? S.logs.find(x => x.id === lf.dataset.logId) : null;
-    if (current && lf.dataset.logMode === 'view') {
-      $('logText').readOnly = false;
-      $('logProjects').disabled = false;
-      lf.dataset.logMode = 'edit';
-      const submit = lf.querySelector('button[type="submit"]'); if (submit) submit.textContent = T('logSave');
-      $('logText').focus();
-      return;
-    }
+    if (current && lf.dataset.logMode === 'view') return;
     const projectIds = [...$('logProjects').selectedOptions].map(x => x.value);
     if (current) {
       current.text = text; current.projectIds = projectIds; current.hasContent = true; current.updatedAt = Date.now();
     } else {
       S.logs.unshift({ id: uid(), date: ui.logDate || TODAY(), text, projectIds, hasContent: true, createdAt: Date.now(), updatedAt: Date.now() });
     }
-    save(true); render(); toast(T('tSaved'));
+    ui.logEditing = false; save(true); render(); toast(T('tSaved'));
   };
   const q = $('nQ');
   if (q) {
@@ -2241,9 +2428,7 @@ async function boot() {
       ['tasks','notes','projects'].forEach(k => S[k].forEach(x => { if (x._s === undefined) { x._s = true; need = true; } }));
       if (need) await save();
     }
-    const rolled = rollover();
     render();
-    if (rolled) setTimeout(() => toast(T('tRolledOver', rolled)), 500);
   } catch (e) {
     document.body.innerHTML = `<main style="font:16px/1.7 -apple-system,BlinkMacSystemFont,sans-serif;max-width:620px;margin:80px auto;padding:24px;color:#173432"><h1>工作台暂时无法打开</h1><p>${esc(e.message || T('tLoadFail'))}</p><p>请确认本地服务已启动，或从备份恢复数据。</p></main>`;
   }

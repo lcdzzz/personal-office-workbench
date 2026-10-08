@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,23 +18,29 @@ jobs:
           node-version: 22
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.12'
       - name: Install test dependency
         run: npm install
       - name: Test
         run: npm test
-      - name: Package macOS launcher
+      - name: Package macOS launcher and app
         run: |
           name="personal-office-workbench-macos-${GITHUB_REF_NAME}"
           mkdir -p "$name"
-          cp README.md LICENSE config.example.json personal-office-workbench.html server.py start.sh shutdown.sh "$name/"
+          cp README.md LICENSE config.example.json personal-office-workbench.html server.py start.sh shutdown.sh start-windows.ps1 shutdown-windows.ps1 build-macos-dmg.sh macos_app.py requirements-macos-build.txt "$name/"
           chmod +x "$name/start.sh" "$name/shutdown.sh"
           zip -r "$name.zip" "$name"
+          ./build-macos-dmg.sh
+          mv dist/Personal-Office-Workbench-macOS-arm64.dmg "Personal-Office-Workbench-macOS-arm64-${GITHUB_REF_NAME}.dmg"
       - uses: actions/upload-artifact@v4
         with:
           name: personal-office-workbench-macos-${{ github.ref_name }}
-          path: personal-office-workbench-macos-${{ github.ref_name }}.zip
+          path: |
+            personal-office-workbench-macos-${{ github.ref_name }}.zip
+            Personal-Office-Workbench-macOS-arm64-${{ github.ref_name }}.dmg
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: personal-office-workbench-macos-${{ github.ref_name }}.zip
+          files: |
+            personal-office-workbench-macos-${{ github.ref_name }}.zip
+            Personal-Office-Workbench-macOS-arm64-${{ github.ref_name }}.dmg

@@ -84,6 +84,44 @@ function run(label, seedState) {
     d.getElementById('pNext').value = '约产品确认范围';
     d.getElementById('pDetails').value = '项目背景和关键决策';
     switchTo('notes');
+    d.getElementById('nText').value = '原始灵感';
+    d.getElementById('nTags').value = '产品';
+    d.getElementById('noteForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const noteId = apiState.notes[0]?.id;
+    const noteCreatedAt = apiState.notes[0]?.createdAt;
+    d.getElementById('nText').value = '未提交的新灵感草稿';
+    d.querySelector(`[data-act="edit-note"][data-id="${noteId}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    const noteEditor = d.querySelector('.mask form');
+    o.noteEditPrefilled = noteEditor?.querySelector('#en_text').value === '原始灵感'
+      && noteEditor?.querySelector('#en_tags').value === '产品';
+    noteEditor.querySelector('#en_text').value = '取消的内容';
+    noteEditor.querySelector('[data-r="0"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.noteCancelPreserved = apiState.notes[0]?.text === '原始灵感';
+    d.querySelector(`[data-act="edit-note"][data-id="${noteId}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    const savedEditor = d.querySelector('.mask form');
+    savedEditor.querySelector('#en_text').value = '修改后的灵感';
+    savedEditor.querySelector('#en_tags').value = '产品, 方法, 产品';
+    savedEditor.dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    o.noteEditSaved = apiState.notes[0]?.id === noteId
+      && apiState.notes[0]?.createdAt === noteCreatedAt
+      && apiState.notes[0]?.text === '修改后的灵感'
+      && JSON.stringify(apiState.notes[0]?.tags) === JSON.stringify(['产品', '方法'])
+      && d.getElementById('view').textContent.includes('修改后的灵感')
+      && d.getElementById('nText').value === '未提交的新灵感草稿';
+    d.querySelector(`[data-act="toggle-note-implemented"][data-id="${noteId}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const implementedAt = apiState.notes[0]?.implementedAt;
+    d.querySelector('[data-act="note-status-filter"][data-status="implemented"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    o.noteImplemented = typeof implementedAt === 'number'
+      && !!d.querySelector(`[data-act="toggle-note-implemented"][data-id="${noteId}"]`)
+      && d.querySelector('[data-act="note-status-filter"][data-status="implemented"]').textContent.includes('1');
+    d.querySelector(`[data-act="toggle-note-implemented"][data-id="${noteId}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    o.noteImplementationReversible = apiState.notes[0]?.implementedAt === null
+      && !d.querySelector(`[data-act="toggle-note-implemented"][data-id="${noteId}"]`);
+    d.querySelector('[data-act="note-status-filter"][data-status="all"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     switchTo('projects');
     o.projectDraftRetained = d.getElementById('pName').value === '项目草稿'
       && d.getElementById('pStage').value === '方案评审中'
@@ -98,6 +136,30 @@ function run(label, seedState) {
     await new Promise(resolve => setTimeout(resolve, 20));
     o.detailsSaved = apiState.projects.some(p => p.name === '项目草稿' && p.details === '项目背景和关键决策')
       && apiState.tasks.some(t => t.title === '带详情的待办' && t.details === '从入口 A 操作，完成后核对结果');
+    const progressTask = apiState.tasks.find(t => t.title === '带详情的待办');
+    o.taskStartsToday = !!(progressTask && progressTask.status === 'todo' && progressTask.progress === 0);
+    if (progressTask) {
+      d.querySelector(`[data-act="task-today"][data-id="${progressTask.id}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      o.taskStartsToday = o.taskStartsToday && apiState.tasks.find(t => t.id === progressTask.id).status === 'doing';
+      d.querySelector(`[data-act="edit-task"][data-id="${progressTask.id}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      const taskEditor = d.querySelector('.mask');
+      taskEditor.querySelector('#et_status').value = 'paused';
+      taskEditor.querySelector('#et_progress').value = '42';
+      taskEditor.querySelector('.task-progress-editor input').dispatchEvent(new w.Event('input', { bubbles: true }));
+      taskEditor.querySelector('[data-r="1"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      const pausedTask = apiState.tasks.find(t => t.id === progressTask.id);
+      o.taskProgressSaved = pausedTask.status === 'paused' && pausedTask.progress === 42 && pausedTask.done === false;
+      d.querySelector(`[data-act="toggle"][data-id="${progressTask.id}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      const completedTask = apiState.tasks.find(t => t.id === progressTask.id);
+      o.taskCompletesAt100 = completedTask.status === 'done' && completedTask.progress === 100 && completedTask.done === true;
+      d.querySelector(`[data-act="toggle"][data-id="${progressTask.id}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      const reopenedTask = apiState.tasks.find(t => t.id === progressTask.id);
+      o.taskReopensPreviousProgress = reopenedTask.status === 'paused' && reopenedTask.progress === 42 && reopenedTask.done === false;
+    }
     const draftedProject = apiState.projects.find(p => p.name === '项目草稿');
     o.newProjectHasInitialProgress = !!(draftedProject && Array.isArray(draftedProject.progresses)
       && draftedProject.progresses.length === 1
@@ -167,9 +229,10 @@ function run(label, seedState) {
     switchTo('logs');
     const savedDateButton = d.querySelector('[data-act="log-date"].has-log');
     if (savedDateButton) savedDateButton.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
-    o.logEditControls = !!d.getElementById('logText') && !!d.getElementById('logProjects');
+    o.logEditControls = !!d.getElementById('logText') && !!d.querySelector('[data-act="edit-log"]');
     if (o.logEditControls) {
-      d.getElementById('logForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+      d.querySelector('[data-act="edit-log"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      o.logEditControls = !!d.getElementById('logProjects') && !d.getElementById('logProjects').disabled;
       d.getElementById('logText').value = '同一条日志继续编辑';
       d.getElementById('logForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
       await new Promise(resolve => setTimeout(resolve, 20));
@@ -183,6 +246,68 @@ function run(label, seedState) {
       await new Promise(resolve => setTimeout(resolve, 20));
       o.logDeleted = apiState.logs.length === 0 && !d.querySelector('[data-act="delete-log"]');
     }
+
+    // 同一任务关联两个项目，编辑时可移除其中一个关联。
+    switchTo('projects');
+    d.getElementById('pName').value = '第二个项目';
+    d.getElementById('projForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    switchTo('tasks');
+    const choices = [...d.querySelectorAll('#taskForm input[name="task-project"]')];
+    choices.forEach(input => { input.checked = true; });
+    d.getElementById('tTitle').value = '跨项目任务';
+    d.getElementById('taskForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const multiTask = apiState.tasks.find(task => task.title === '跨项目任务');
+    o.multiProjectTask = !!(multiTask && multiTask.projectIds.length === 2
+      && multiTask.pid === multiTask.projectIds[0]
+      && multiTask.projectIds.every(pid => d.getElementById('view').textContent.includes(apiState.projects.find(p => p.id === pid).name)));
+    if (multiTask) {
+      d.querySelector(`[data-act="edit-task"][data-id="${multiTask.id}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      const editChoices = [...d.querySelectorAll('.mask input[name="task-project"]')];
+      o.multiProjectEdit = editChoices.length === 2 && editChoices.every(input => input.checked);
+      editChoices[0].checked = false;
+      d.querySelector('.mask [data-r="1"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      o.multiProjectEdit = o.multiProjectEdit && apiState.tasks.find(task => task.id === multiTask.id).projectIds.length === 1;
+      const savedTask = apiState.tasks.find(task => task.id === multiTask.id);
+      switchTo('projects');
+      d.querySelector(`[data-act="open-project-detail"][data-id="${choices[0].value}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      o.formerLinkedTask = savedTask.projectHistoryIds.includes(choices[0].value)
+        && d.getElementById('view').textContent.includes('曾经关联的待办')
+        && d.getElementById('view').textContent.includes('跨项目任务');
+      switchTo('tasks');
+      d.querySelector(`[data-act="toggle"][data-id="${multiTask.id}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 20));
+      switchTo('projects');
+      d.querySelector(`[data-act="open-project-detail"][data-id="${choices[1].value}"]`).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+      const completedRow = d.querySelector('.pt-table tbody tr.pt-completed');
+      o.completedLinkedTask = !!completedRow && completedRow.textContent.includes('跨项目任务');
+    }
+
+    // 新增成功后，整张待办表单应恢复空白，且不能从旧 DOM 或项目筛选回填。
+    switchTo('tasks');
+    d.getElementById('tTitle').value = '验证新增后清空';
+    d.getElementById('tPrio').value = '4';
+    d.getElementById('tDue').value = '2026-10-10';
+    d.getElementById('tDetails').value = '这段详情不能留给下一条';
+    const taskProjectChoice = d.querySelector('#taskForm input[name="task-project"]');
+    if (taskProjectChoice) taskProjectChoice.checked = true;
+    d.getElementById('taskForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    o.taskFormCleared = d.getElementById('tTitle').value === ''
+      && d.getElementById('tPrio').value === '2'
+      && d.getElementById('tDue').value === ''
+      && d.getElementById('tDetails').value === ''
+      && !d.querySelector('#taskForm input[name="task-project"]:checked')
+      && apiState.tasks.some(task => task.title === '验证新增后清空'
+        && task.prio === 4 && task.due === '2026-10-10'
+        && task.details === '这段详情不能留给下一条');
+    d.getElementById('tTitle').value = '未提交的待办草稿';
+    d.getElementById('tDue').value = '2026-10-11';
+    switchTo('notes');
+    switchTo('tasks');
+    o.taskDraftRetained = d.getElementById('tTitle').value === '未提交的待办草稿'
+      && d.getElementById('tDue').value === '2026-10-11';
 
     // 逐个视图单独渲染，检查备份页导出/导入卡片
     ['focus', 'tasks', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
@@ -230,6 +355,11 @@ function run(label, seedState) {
     console.log('  doExport 新增错误     :', o.exportErrors);
     console.log('  导出后 footer         :', o.footAfterExport);
     console.log('  导出后提醒            :', o.nudgeAfterExport || '(无)');
+    console.log('  灵感编辑/取消/保存     :', o.noteEditPrefilled, o.noteCancelPreserved, o.noteEditSaved);
+    console.log('  灵感实现/撤回         :', o.noteImplemented, o.noteImplementationReversible);
+    console.log('  待办开始/进度/完成恢复 :', o.taskStartsToday, o.taskProgressSaved, o.taskCompletesAt100, o.taskReopensPreviousProgress);
+    console.log('  新增待办后表单清空     :', o.taskFormCleared);
+    console.log('  待办未提交草稿保留     :', o.taskDraftRetained);
   };
   show(A);
   show(B);
@@ -244,7 +374,12 @@ function run(label, seedState) {
   if (!B.nudge.includes('该导出一次备份了')) fail.push('B 未触发导出提醒');
   if (!B.footAfterExport.includes('上次备份')) fail.push('B 导出后 footer 未更新');
   if (!A.projectDraftRetained || !B.projectDraftRetained) fail.push('切换标签后项目草稿丢失');
+  if (!A.taskFormCleared || !B.taskFormCleared) fail.push('新增待办后表单未清空');
+  if (!A.taskDraftRetained || !B.taskDraftRetained) fail.push('待办未提交草稿切页后丢失');
+  if (!A.noteEditPrefilled || !B.noteEditPrefilled || !A.noteCancelPreserved || !B.noteCancelPreserved || !A.noteEditSaved || !B.noteEditSaved) fail.push('灵感编辑或取消未正确保存内容和标签');
+  if (!A.noteImplemented || !B.noteImplemented || !A.noteImplementationReversible || !B.noteImplementationReversible) fail.push('灵感实现状态不能筛选或撤回');
   if (!A.detailsSaved || !B.detailsSaved) fail.push('项目或待办详情未保存');
+  if (!A.taskStartsToday || !B.taskStartsToday || !A.taskProgressSaved || !B.taskProgressSaved || !A.taskCompletesAt100 || !B.taskCompletesAt100 || !A.taskReopensPreviousProgress || !B.taskReopensPreviousProgress) fail.push('待办状态、进度或完成恢复异常');
   if (!A.newProjectHasInitialProgress || !B.newProjectHasInitialProgress) fail.push('新项目没有生成首条独立跟进记录');
   if (!A.projectListIsCompact || !B.projectListIsCompact || !A.projectDetailPage || !B.projectDetailPage) fail.push('项目详情没有移到可返回的独立页面');
   if (!A.progressUpdateControls || !B.progressUpdateControls) fail.push('没有已有项目的跟进记录入口');
@@ -260,6 +395,8 @@ function run(label, seedState) {
   if (!A.logReadOnly || !B.logReadOnly) fail.push('保存后的日志不是默认只读');
   if (!A.logEdited || !B.logEdited) fail.push('日志编辑后未原地保存或产生重复记录');
   if (!A.logDeleteCancel || !B.logDeleteCancel || !A.logDeleted || !B.logDeleted) fail.push('日志删除缺少确认或确认后未删除');
+  if (!A.multiProjectTask || !B.multiProjectTask || !A.multiProjectEdit || !B.multiProjectEdit) fail.push('任务多项目关联或编辑失败');
+  if (!A.formerLinkedTask || !B.formerLinkedTask || !A.completedLinkedTask || !B.completedLinkedTask) fail.push('项目详情没有显示历史或已完成待办');
   console.log('\n================ 结论 ================');
   console.log(fail.length ? '❌ 未通过：' + fail.join('；') : '✅ 全部通过');
   process.exit(fail.length ? 1 : 0);

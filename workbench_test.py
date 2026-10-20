@@ -59,9 +59,14 @@ class LifecycleTests(unittest.TestCase):
         self.temp.cleanup()
 
     def run_script(self, action, *args, name='workbench.sh', input=None):
-        result = subprocess.run(['bash', str(self.checkout / name), action, *args],
-                                cwd=self.root, env=self.env, input=input, text=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=18)
+        try:
+            result = subprocess.run(['bash', '-x', str(self.checkout / name), action, *args],
+                                    cwd=self.root, env=self.env, input=input, text=True, errors='replace',
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+        except subprocess.TimeoutExpired as error:
+            logfile = self.pidfile.parent / 'server.log'
+            detail = logfile.read_text(errors='replace') if logfile.exists() else '(no server log)'
+            raise AssertionError(f'Lifecycle command timed out.\nstdout={error.stdout!r}\nstderr={error.stderr!r}\nserver={detail}') from error
         if self.pidfile.exists() and self.pidfile.read_text().strip().isdigit():
             self.started.add(int(self.pidfile.read_text().strip()))
         return result

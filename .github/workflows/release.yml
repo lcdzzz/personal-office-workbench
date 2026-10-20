@@ -27,8 +27,8 @@ jobs:
         run: |
           name="personal-office-workbench-macos-${GITHUB_REF_NAME}"
           mkdir -p "$name"
-          cp README.md LICENSE config.example.json personal-office-workbench.html server.py start.sh shutdown.sh start-windows.ps1 shutdown-windows.ps1 build-macos-dmg.sh macos_app.py requirements-macos-build.txt "$name/"
-          chmod +x "$name/start.sh" "$name/shutdown.sh"
+          cp README.md LICENSE config.example.json personal-office-workbench.html server.py workbench.sh start.sh shutdown.sh restart.sh start-windows.ps1 shutdown-windows.ps1 build-macos-dmg.sh macos_app.py requirements-macos-build.txt "$name/"
+          chmod +x "$name/workbench.sh" "$name/start.sh" "$name/shutdown.sh" "$name/restart.sh"
           zip -r "$name.zip" "$name"
           ./build-macos-dmg.sh
           mv dist/Personal-Office-Workbench-macOS-arm64.dmg "Personal-Office-Workbench-macOS-arm64-${GITHUB_REF_NAME}.dmg"

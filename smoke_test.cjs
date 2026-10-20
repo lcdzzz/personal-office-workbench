@@ -68,7 +68,7 @@ function run(label, seedState) {
 
     // 走一遍所有视图切换
     const before = errors.length;
-    ['focus', 'tasks', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
+    ['focus', 'tasks', 'files', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
       const b = d.querySelector('#navScroll [data-nav="' + k + '"]');
       if (b) b.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
     });
@@ -310,7 +310,7 @@ function run(label, seedState) {
       && d.getElementById('tDue').value === '2026-10-11';
 
     // 逐个视图单独渲染，检查备份页导出/导入卡片
-    ['focus', 'tasks', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
+    ['focus', 'tasks', 'files', 'notes', 'projects', 'logs', 'review', 'backup'].forEach(k => {
       const b = d.querySelector('#navScroll [data-nav="' + k + '"]');
       if (b) b.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
       o[k + 'Html'] = d.getElementById('view').innerHTML.length;
@@ -344,7 +344,7 @@ function run(label, seedState) {
     console.log('  侧边栏导航项数        :', o.navItems);
     console.log('  hero 渲染长度        :', o.heroLen);
     console.log('  首页 view 长度        :', o.viewLen);
-    console.log('  切 6 个视图新增错误数  :', o.viewSwitchErrors);
+    console.log('  切换所有视图新增错误数  :', o.viewSwitchErrors);
     console.log('  各视图渲染长度        : focus=' + o.focusHtml + ' tasks=' + o.tasksHtml + ' notes=' + o.notesHtml + ' projects=' + o.projectsHtml + ' review=' + o.reviewHtml + ' backup=' + o.backupHtml);
     console.log('  备份页有「导出」按钮   :', o.backupHasExportBtn, ' 有导入文件框:', o.backupHasImportInput);
     console.log('  备份页文案           :', o.backupText);
@@ -367,7 +367,7 @@ function run(label, seedState) {
   const fail = [];
   if (A.errors.length) fail.push('A 有 JS 错误');
   if (B.errors.length) fail.push('B 有 JS 错误');
-  if (A.navItems !== 7) fail.push('A 导航项数异常');
+  if (A.navItems !== 8) fail.push('A 导航项数异常');
   if (!A.apiLoaded) fail.push('A 未加载本地 API 数据');
   if (A.viewLen === 0) fail.push('A 首页未渲染');
   if (!A.backupHasExportBtn || !A.backupHasImportInput) fail.push('A 备份页缺导出/导入');

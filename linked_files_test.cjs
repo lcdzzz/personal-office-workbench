@@ -1,0 +1,108 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const {JSDOM, VirtualConsole} = require('jsdom');
+const html = fs.readFileSync(__dirname + '/personal-office-workbench.html', 'utf8');
+const tick = () => new Promise(r => setTimeout(r, 35));
+const errors = [], reveals = [], copies = [];
+let state = {tasks: [{id:'old', title:'旧待办', prio:2, status:'todo', done:false}], notes:[], projects:[], logs:[], meta:{initialized:true}, generation:0};
+function load(lang = 'zh') {
+  const vc = new VirtualConsole(); vc.on('jsdomError', e => errors.push(e.message));
+  return new JSDOM(html, {url:`http://127.0.0.1:8799/?lang=${lang}`, runScripts:'dangerously', pretendToBeVisual:true, virtualConsole:vc, beforeParse(w) {
+    w.matchMedia = () => ({matches:false}); w.scrollTo = () => {};
+    Object.defineProperty(w.navigator, 'clipboard', {value:{writeText:async text => copies.push(text)}});
+    w.fetch = async (url, opts={}) => {
+      if (url === '/api/linked-files/reveal') {reveals.push(JSON.parse(opts.body)); return {ok:true,json:async()=>({ok:true})};}
+      assert.equal(url, '/api/workbench');
+      if (opts.method === 'PUT') {state = JSON.parse(opts.body); state.generation++;}
+      return {ok:true,json:async()=>structuredClone(state)};
+    };
+    w.addEventListener('error', e => errors.push(e.message));
+  }});
+}
+(async () => {
+  let dom = load(); await tick(); let w = dom.window;
+  const $ = s => w.document.querySelector(s);
+  const click = s => {assert.ok($(s), '缺少入口 '+s); $(s).click();};
+  const tasks = () => {click('[data-nav="tasks"]'); click('[data-act="tfilter"][data-f="all"]');};
+  const editRow = (root, path, kind, note) => {
+    click(`${root} [data-link-add]`);
+    const row = [...w.document.querySelectorAll(`${root} [data-link-row]`)].at(-1);
+    row.querySelector('[data-link-path]').value = path;
+    row.querySelector('[data-link-kind]').value = kind;
+    row.querySelector('[data-link-note]').value = note;
+  };
+  click('[data-nav="files"]');
+  assert.ok($('#view').textContent.includes('还没有关联'));
+  tasks();
+  assert.equal(w.eval('S.tasks[0].linkedFiles.length'),0, '旧数据默认无关联');
+  $('#tTitle').value = '排障经验';
+  editRow('#taskForm', '/tmp/经验/./排障.md', 'file', '连接池耗尽的处理步骤');
+  editRow('#taskForm', '/tmp/经验/', 'directory', '经验目录');
+  click('[data-nav="notes"]'); tasks();
+  assert.equal($('#tTitle').value, '排障经验');
+  assert.equal($('#taskForm [data-link-path]').value, '/tmp/经验/./排障.md', '切换保留草稿');
+  $('#taskForm').dispatchEvent(new w.Event('submit', {bubbles:true,cancelable:true})); await tick();
+  const firstId = state.tasks[0].id;
+  assert.equal(state.tasks[0].linkedFiles.length,2);
+  assert.equal(state.tasks[0].linkedFiles[0].path, '/tmp/经验/排障.md');
+  assert.equal($('#taskForm [data-link-row]'), null, '提交后重置关联草稿');
+  tasks(); click(`[data-act="edit-task"][data-id="${firstId}"]`);
+  $('.mask [data-link-note]').value = '取消修改'; click('.mask [data-r="0"]');
+  assert.equal(state.tasks[0].linkedFiles[0].note,'连接池耗尽的处理步骤');
+  click(`[data-act="edit-task"][data-id="${firstId}"]`);
+  editRow('.mask', '/tmp/经验/排障.md', 'file', '补充说明');
+  click('.mask [data-r="1"]'); await tick();
+  assert.equal(state.tasks[0].linkedFiles.length,2,'单待办同一路径去重');
+  assert.ok(state.tasks[0].linkedFiles[0].note.includes('补充说明'));
+  $('#tTitle').value = '复用排障手册';
+  editRow('#taskForm', '/tmp/经验/排障.md', 'file', '另一个待办的复盘');
+  $('#taskForm').dispatchEvent(new w.Event('submit', {bubbles:true,cancelable:true})); await tick();
+  const secondId = state.tasks[0].id;
+  click('[data-nav="files"]');
+  assert.equal(w.document.querySelectorAll('[data-linked-resource]').length,2);
+  assert.equal(w.document.querySelectorAll('[data-act="linked-task"]').length,3);
+  click('[data-act="copy-linked-path"]'); await tick(); assert.ok(copies[0].startsWith('/tmp/经验'));
+  click('[data-act="reveal-linked-path"]'); await tick(); assert.equal(reveals.length,1);
+  assert.ok(reveals[0].taskId && reveals[0].path);
+  $('#fileQ').value = '另一个待办'; $('#fileQ').dispatchEvent(new w.Event('input')); await new Promise(r=>setTimeout(r,300));
+  assert.equal(w.document.querySelectorAll('[data-linked-resource]').length,1);
+  $('#fileQ').value = ''; $('#fileQ').dispatchEvent(new w.Event('input')); await new Promise(r=>setTimeout(r,300));
+  click('[data-act="file-kind"][data-kind="directory"]');
+  assert.equal(w.document.querySelectorAll('[data-linked-resource]').length,1);
+  click('[data-act="file-kind"][data-kind="all"]');
+  click(`[data-act="linked-task"][data-id="${firstId}"]`);
+  assert.equal($('#et_title').value, '排障经验');
+  click('.mask [data-r="0"]');
+  tasks(); click(`[data-act="toggle"][data-id="${firstId}"]`); await tick();
+  click('[data-nav="files"]');
+  assert.ok($('#view [data-task-state="done"]'));
+  dom.window.close(); dom = load(); await tick(); w = dom.window;
+  click('[data-nav="files"]'); assert.equal(w.document.querySelectorAll('[data-linked-resource]').length,2,'重载保留');
+  click(`[data-act="linked-task"][data-id="${secondId}"]`);
+  click('.mask [data-link-remove]'); click('.mask [data-r="1"]'); await tick();
+  assert.equal(state.tasks.find(t=>t.id===secondId).linkedFiles.length,0);
+  click(`[data-act="linked-task"][data-id="${firstId}"]`);
+  click('.mask [data-link-remove]'); click('.mask [data-link-remove]'); click('.mask [data-r="1"]'); await tick();
+  assert.equal(w.document.querySelectorAll('[data-linked-resource]').length,0,'最后关联移除自动消失');
+  tasks(); $('#tTitle').value='无效路径'; editRow('#taskForm','https://example.com/a','file','');
+  $('#taskForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true})); await tick();
+  assert.ok(!state.tasks.some(t=>t.title==='无效路径'),'拒绝URL');
+  assert.equal(w.eval('normalizeLinkedPath("C:\\\\Docs\\\\..\\\\Notes\\\\a.md")'), 'C:/Notes/a.md');
+  assert.equal(w.eval('normalizeLinkedPath("/tmp/a/../b/")'), '/tmp/b');
+  assert.equal(w.eval('normalizeLinkedPath("relative/file")'), '');
+  assert.equal(w.eval('normalizeLinkedPath("//server/share/../a")'), '//server/share/a');
+  assert.equal(w.eval('normalizeLinkedFiles([{path:"C:/Notes/A.md",kind:"file"},{path:"c:\\\\notes\\\\a.md",kind:"file"}]).length'),1);
+  const hostile = {id:'safe', title:'<img src=x onerror=alert(1)>', prio:2, status:'todo', done:false,
+    linkedFiles:[{path:'/tmp/<img src=x onerror=alert(1)>.md',kind:'file',note:'<script>alert(1)</script>'}]};
+  state.tasks.push(hostile);
+  dom.window.close(); dom=load(); await tick(); w=dom.window;
+  click('[data-nav="files"]');
+  assert.equal($('#view .linked-resource img'),null); assert.equal($('#view .linked-resource script'),null,'关联内容必须转义');
+  assert.ok($('#view').textContent.includes(hostile.title));
+  tasks(); click('[data-act="del-task"][data-id="safe"]'); click('.mask [data-r="1"]'); await tick();
+  click('[data-nav="files"]'); assert.equal(w.document.querySelectorAll('[data-linked-resource]').length,0,'删除待办同步移除关联索引');
+  dom.window.close(); dom=load('en'); await tick(); w=dom.window;
+  click('[data-nav="files"]'); assert.ok($('#view').textContent.includes('Linked files'));
+  assert.deepEqual(errors,[]); dom.window.close();
+  console.log('✅ 关联文件：新建/编辑/取消/移除/草稿/去重/搜索/筛选/跳转/完成保留/重载/路径校验/英文通过');
+})().catch(e=>{console.error(e);process.exitCode=1;});

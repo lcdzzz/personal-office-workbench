@@ -6,6 +6,7 @@ A lightweight, local-first personal workbench for tracking tasks, notes, and pro
 
 - Focus view for the work that needs attention now
 - Task, note, project, and work-log management
+- Link tasks to local files and folders, with notes capturing lessons learned; browse all linked resources from the sidebar
 - JSON data stored locally, not in a cloud service
 - ZIP export, preview, merge, and restore
 - Atomic writes with backup files and generation checks to avoid silently losing inconsistent data
@@ -69,7 +70,30 @@ powershell -ExecutionPolicy Bypass -File .\shutdown-windows.ps1
 
 Both stop scripts verify that the recorded process belongs to this workbench before stopping it.
 
+## Start, stop, restart, and status (macOS source version)
+
+Use the unified controller from the repository directory:
+
+```bash
+./workbench.sh start                 # Start and open the browser
+./workbench.sh stop                  # Stop the source-workbench server
+./workbench.sh restart               # Stop, wait for exit, then start the current code
+./workbench.sh status                # Show the running PID and URL
+./workbench.sh                       # Interactive menu
+./workbench.sh restart --no-open     # Restart without opening a browser tab
+```
+
+Save pending edits in the page before restarting. Restart stops the old Python process so backend code changes take effect; refreshing the page alone does not reload backend code. The controller reads the configured loopback host and port and reports configuration errors, startup failures, or occupied ports.
+
+`start.sh`, `shutdown.sh`, and `restart.sh` are shortcuts to the same controller. The Raycast entries `工作台.sh` (start), `shutdowngzt.sh` (stop), and `cqgzt.sh` (restart) resolve their own directory, so they also work when launched from another folder.
+
+Before stopping a process, the controller checks its Python command line against this checkout's exact `server.py` path. If the PID file is missing, it finds the port listener and applies the same check. Unrelated processes and ambiguous matches are rejected; a failed stop prevents the restart from starting another server. These scripts manage the source server; a separately installed macOS app keeps its own lifecycle.
+
 ## Data and backups
+
+Use **Add link** when creating or editing a task to paste an absolute local file or folder path and add a note about the result or lesson learned. Multiple links are supported. **Linked files** in the sidebar groups matching paths and shows every associated task, including completed and abandoned tasks. Search by path, task title, or note, filter files/folders, copy paths, or show resources in the system file manager. Click a task title to edit its links. Missing or moved resources keep their references; update their paths in the task editor when needed.
+
+Links reference the original location. Unlinking or deleting a task does not delete the resource. ZIP/JSON backups contain paths and notes, not the linked files or folder contents; paths may need updating after moving to another computer.
 
 Your runtime data is kept outside the checkout in:
 
@@ -83,10 +107,14 @@ It contains `tasks.json`, `notes.json`, `projects.json`, `logs.json`, and `meta.
 
 ```bash
 python3 -m py_compile server.py
+python3 -m unittest -v linked_files_server_test.py workbench_test.py
+bash -n workbench.sh
+bash -n restart.sh
 bash -n start.sh
 bash -n shutdown.sh
 bash shutdown_test.sh
 node smoke_test.cjs
+node linked_files_test.cjs
 ```
 
 `smoke_test.cjs` needs the `jsdom` package available in your Node environment; it is only used for the UI smoke test, not for running the app.

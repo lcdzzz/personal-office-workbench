@@ -609,6 +609,27 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 @media (min-width:861px){ .nav-scroll{display:contents} }
 @media print{ .nav,.topbar-act,.it-act,.ico-btn,.nudge,.hero-img{display:none} .card,.focus{box-shadow:none;break-inside:avoid} }
 
+/* Task-linked local resources */
+.linked-editor{margin:14px 0 18px;border-top:1px solid var(--line-soft);padding-top:12px}
+.linked-editor-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.linked-hint{font-size:12px;color:var(--text-3);line-height:1.6;margin:4px 0 10px}
+.linked-edit-row{border:1px solid var(--line-soft);border-radius:10px;padding:10px;margin:8px 0;display:grid;gap:8px}
+.linked-edit-top{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.linked-edit-top .f.grow{min-width:160px}
+.linked-edit-row input,.linked-edit-row select{width:100%}
+.linked-path{font-size:12px;color:var(--text-2);overflow-wrap:anywhere;white-space:pre-wrap;user-select:text}
+.linked-resource{padding:16px;border-bottom:1px solid var(--line-soft)}
+.linked-resource:last-child{border-bottom:0}
+.linked-resource-head{display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.linked-resource-name{font-size:14px;font-weight:650;overflow-wrap:anywhere}
+.linked-resource-actions{display:flex;gap:6px;flex-wrap:wrap}
+.linked-task{margin-top:12px;padding-left:12px;border-left:2px solid var(--accent-soft)}
+.linked-task-title{border:0;background:none;color:var(--accent-deep);cursor:pointer;font:inherit;text-align:left;overflow-wrap:anywhere}
+.linked-note{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:var(--text-2);margin-top:5px}
+.task-edit-modal{max-height:calc(100dvh - 40px);overflow:auto}
+.linked-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.linked-toolbar input{flex:1 1 240px;min-width:0}
+
 </style>
 </head>
 <body>
@@ -657,6 +678,7 @@ const I18N = {
   zh: {
     appName: '个人办公工作台', appTag: '本地文件版',
     navWorkspace: '工作区', navFocus: '今日焦点', navTasks: '今天待办', navNotes: '灵感速记',
+    navFiles: '关联文件', linkedFiles: '关联文件/目录', linkAdd: '添加关联', linkType: '类型', linkFile: '文件', linkDirectory: '目录', linkPath: '完整路径', linkNote: '说明 / 沉淀了什么经验', linkRemove: '解除关联', linkHint: '粘贴本机文件或目录的完整路径。保存引用，原文件内容不会复制到工作台。', linkInvalid: '请输入有效的本机绝对路径，并为每条说明填写路径。', filesSub: '从待办中沉淀的文件与目录，找到成果，也找到当时的任务和经验。', filesEmpty: '还没有关联文件或目录，可以在新增或编辑待办时添加。', filesNoMatch: '没有匹配的关联文件。', filesSearch: '搜索路径、待办或经验说明', filesAll: '全部类型', linkReveal: '打开所在目录', linkCopy: '复制路径', linkCopied: '路径已复制', linkCopyFail: '复制失败，请手动复制路径', linkOpenFail: '无法打开目录，请检查路径是否存在、关联是否已保存。', linkCount: n => `关联文件 ${n}`,
     navProjects: '项目跟进', navLogs: '工作日志', navReview: '每周复盘', navBackup: '数据说明',
     footStore: '数据本地存储', footRecords: n => `共 ${n} 条记录`,
     footBackedAt: t => ` · 上次备份 ${t}`, footNeverBacked: ' · 还没备份过',
@@ -844,6 +866,7 @@ const I18N = {
   en: {
     appName: 'Personal Office Workbench', appTag: 'Local file edition',
     navWorkspace: 'Workspace', navFocus: "Today's Focus", navTasks: 'Tasks', navNotes: 'Quick Notes',
+    navFiles: 'Linked files', linkedFiles: 'Linked files / folders', linkAdd: 'Add link', linkType: 'Type', linkFile: 'File', linkDirectory: 'Folder', linkPath: 'Absolute path', linkNote: 'Notes / lessons learned', linkRemove: 'Unlink', linkHint: 'Paste an absolute local file or folder path. Only the reference is saved; file contents are not copied.', linkInvalid: 'Enter a valid absolute local path for every non-empty row.', filesSub: 'Files and folders linked to tasks, with the work and lessons behind them.', filesEmpty: 'No linked files or folders yet. Add links when creating or editing a task.', filesNoMatch: 'No matching linked files.', filesSearch: 'Search paths, tasks or lessons', filesAll: 'All types', linkReveal: 'Show in folder', linkCopy: 'Copy path', linkCopied: 'Path copied', linkCopyFail: 'Copy failed. Please copy the path manually.', linkOpenFail: 'Could not open folder. Check that the path exists and the link has been saved.', linkCount: n => `${n} linked files`,
     navProjects: 'Projects', navLogs: 'Work Logs', navReview: 'Weekly Review', navBackup: 'Data Info',
     footStore: 'Stored locally', footRecords: n => `${n} records`,
     footBackedAt: t => ` · Last backup ${t}`, footNeverBacked: ' · Never backed up',
@@ -1059,6 +1082,7 @@ const I = (() => {
     bulb: w('<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2z"/>'),
     proj: w('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),
     chart: w('<path d="M3 3v18h18"/><path d="M7 15v3M12 9v9M17 12v6"/>'),
+    file: w('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>'),
     db: w('<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>'),
     alert: w('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>'),
     sun: w('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
@@ -1140,7 +1164,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 
 /* ---------- 状态 ---------- */
 let S = null;
-let ui = { view: 'focus', detailProjectId: '', taskFilter: 'today', projFilter: '', tagFilter: '', noteStatusFilter: 'all', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '', logEditing: false,
+let ui = { view: 'focus', detailProjectId: '', fileQ: '', fileKind: 'all', fileTaskId: '', taskFilter: 'today', projFilter: '', tagFilter: '', noteStatusFilter: 'all', noteQ: '', weekOff: 0, nudgeHidden: false, logDate: TODAY(), logMonth: TODAY().slice(0,7), logProject: '', logEditing: false,
   drafts: { task: {}, note: {}, project: {} }, expandedDetails: {}, progressMaps: {} };
 
 const blank = () => ({
@@ -1162,6 +1186,7 @@ async function load() {
 function normalize() {
   const ids = new Set(S.projects.map(p => p.id));
   S.tasks.forEach(k => {
+    k.linkedFiles = normalizeLinkedFiles(k.linkedFiles);
     normalizeTask(k);
     k.projectIds = [...new Set((Array.isArray(k.projectIds) ? k.projectIds : (k.pid ? [k.pid] : [])).filter(id => ids.has(id)))];
     k.projectHistoryIds = [...new Set([...(Array.isArray(k.projectHistoryIds) ? k.projectHistoryIds : []), ...k.projectIds].filter(id => ids.has(id)))];
@@ -1376,11 +1401,103 @@ const groupByDue = arr => {
   return [...m.entries()];
 };
 
+/* ---------- Task-linked local files (references only) ---------- */
+function normalizeLinkedPath(value) {
+  if (typeof value !== 'string' || /[\x00-\x1f\x7f]/.test(value)) return '';
+  let path = value.trim();
+  if (!path || path.length > 4096 || /^(?:\\\\|\/\/)[?.][\\/]/.test(path)) return '';
+  const windows = /^[a-z]:[\\/]/i.test(path) || /^(?:\\\\|\/\/)/.test(path);
+  if (windows) path = path.replace(/\\/g, '/');
+  let prefix, rest;
+  if (/^[a-z]:\//i.test(path)) { prefix = path[0].toUpperCase() + ':/'; rest = path.slice(3); }
+  else if (path.startsWith('//')) {
+    const parts = path.slice(2).split('/');
+    if (parts.length < 2 || !parts[0] || !parts[1] || parts.slice(0,2).some(x => x === '.' || x === '..')) return '';
+    prefix = '//' + parts[0] + '/' + parts[1] + '/'; rest = parts.slice(2).join('/');
+  } else if (path.startsWith('/')) { prefix = '/'; rest = path.slice(1); }
+  else return '';
+  if (windows && /[<>:"|?*]/.test(rest)) return '';
+  const parts = [];
+  rest.split('/').forEach(part => { if (part === '..') parts.pop(); else if (part && part !== '.') parts.push(part); });
+  return parts.length ? prefix + parts.join('/') : prefix;
+}
+const linkedPathKey = path => /^[a-z]:\//i.test(path) || path.startsWith('//') ? path.toLowerCase() : path;
+function normalizeLinkedFiles(items) {
+  const out = new Map();
+  if (!Array.isArray(items)) return [];
+  items.forEach(item => {
+    if (!item || typeof item !== 'object') return;
+    const path = normalizeLinkedPath(item.path);
+    if (!path || !['file','directory'].includes(item.kind)) return;
+    const note = typeof item.note === 'string' ? item.note.trim() : '';
+    const key = linkedPathKey(path), prev = out.get(key);
+    if (prev) { if (note && !prev.note.split('\n').includes(note)) prev.note = [prev.note,note].filter(Boolean).join('\n'); }
+    else out.set(key, {path, kind:item.kind, note});
+  });
+  return [...out.values()];
+}
+function linkedFileEditor(items) {
+  return `<section class="linked-editor"><div class="linked-editor-head"><b>${T('linkedFiles')}</b><button type="button" class="btn btn-sm" data-link-add>${I.plus}${T('linkAdd')}</button></div>
+    <div class="linked-hint">${T('linkHint')}</div><div data-link-rows>${(Array.isArray(items) ? items : []).map(linkedFileEditorRow).join('')}</div></section>`;
+}
+function linkedFileEditorRow(item = {}) {
+  return `<div class="linked-edit-row" data-link-row><div class="linked-edit-top">
+    <div class="f"><label>${T('linkType')}</label><select data-link-kind aria-label="${T('linkType')}"><option value="file">${T('linkFile')}</option><option value="directory"${item.kind==='directory'?' selected':''}>${T('linkDirectory')}</option></select></div>
+    <div class="f grow"><label>${T('linkPath')}</label><input type="text" data-link-path aria-label="${T('linkPath')}" value="${esc(item.path)}" maxlength="4096" placeholder="/Users/… / C:\\…"></div>
+    <button type="button" class="btn btn-sm" data-link-remove>${T('linkRemove')}</button></div>
+    <div class="f"><label>${T('linkNote')}</label><textarea data-link-note aria-label="${T('linkNote')}" maxlength="1200" rows="2">${esc(item.note)}</textarea></div></div>`;
+}
+function readLinkedFileEditor(root, validate = false) {
+  const rows = [...root.querySelectorAll('[data-link-row]')].map(row => ({path:row.querySelector('[data-link-path]').value, kind:row.querySelector('[data-link-kind]').value, note:row.querySelector('[data-link-note]').value}));
+  if (!validate) return rows;
+  if (rows.some(row => (row.path.trim() || row.note.trim()) && !normalizeLinkedPath(row.path))) throw new Error(T('linkInvalid'));
+  return normalizeLinkedFiles(rows);
+}
+function bindLinkedFileEditor(root) {
+  const editor = root.querySelector('.linked-editor');
+  if (!editor) return;
+  editor.addEventListener('click', e => {
+    if (e.target.closest('[data-link-add]')) {
+      editor.querySelector('[data-link-rows]').insertAdjacentHTML('beforeend', linkedFileEditorRow());
+      [...editor.querySelectorAll('[data-link-path]')].at(-1).focus();
+    }
+    if (e.target.closest('[data-link-remove]')) e.target.closest('[data-link-row]').remove();
+  });
+}
+function linkedFileIndex() {
+  const files = new Map();
+  S.tasks.forEach(task => normalizeLinkedFiles(task.linkedFiles).forEach(link => {
+    const key = linkedPathKey(link.path);
+    if (!files.has(key)) files.set(key, {...link, tasks:[]});
+    files.get(key).tasks.push({task, note:link.note});
+  }));
+  return [...files.values()].sort((a,b) => a.path.localeCompare(b.path));
+}
+function vFiles() {
+  const all = linkedFileIndex(), q = ui.fileQ.trim().toLowerCase();
+  const resources = all.filter(file => (ui.fileKind === 'all' || file.kind === ui.fileKind)
+    && (!ui.fileTaskId || file.tasks.some(x => x.task.id === ui.fileTaskId))
+    && (!q || [file.path, ...file.tasks.flatMap(x => [x.task.title,x.note])].join('\n').toLowerCase().includes(q)));
+  return head(T('navFiles'), T('filesSub')) + `<div class="card"><div class="card-b">
+    <div class="linked-toolbar"><input type="text" id="fileQ" value="${esc(ui.fileQ)}" placeholder="${T('filesSearch')}" aria-label="${T('filesSearch')}">
+      <div class="seg">${[['all','filesAll'],['file','linkFile'],['directory','linkDirectory']].map(([kind,label]) => `<button data-act="file-kind" data-kind="${kind}" class="${ui.fileKind===kind?'on':''}">${T(label)}</button>`).join('')}</div></div>
+    ${ui.fileTaskId ? `<div class="linked-toolbar"><span>${esc(tById(ui.fileTaskId)?.title)}</span><button class="btn btn-sm" data-act="clear-file-task">${T('filterAll')}</button></div>` : ''}
+    ${resources.length ? resources.map(file => {
+      const name = file.path.replace(/\/$/,'').split('/').pop() || file.path;
+      const attrs = `data-id="${esc(file.tasks[0].task.id)}" data-path="${esc(file.path)}"`;
+      return `<article class="linked-resource" data-linked-resource><div class="linked-resource-head"><div><div class="linked-resource-name">${file.kind==='directory'?I.proj:I.file} ${esc(name)} <span class="pill gray">${T(file.kind==='directory'?'linkDirectory':'linkFile')}</span></div><div class="linked-path">${esc(file.path)}</div></div>
+        <div class="linked-resource-actions"><button class="btn btn-sm" data-act="copy-linked-path" ${attrs}>${T('linkCopy')}</button><button class="btn btn-sm" data-act="reveal-linked-path" ${attrs}>${T('linkReveal')}</button></div></div>
+        ${file.tasks.map(({task,note}) => `<div class="linked-task"><button class="linked-task-title" data-act="linked-task" data-id="${esc(task.id)}">${esc(task.title)}</button> ${taskStateMarkup(task)}${note?`<div class="linked-note">${esc(note)}</div>`:''}</div>`).join('')}</article>`;
+    }).join('') : emptyBox(T(all.length ? 'filesNoMatch' : 'filesEmpty'),'proj')}
+  </div></div>`;
+}
+
 /* ---------- 渲染入口 ---------- */
 const NAV = [
   { k: 'focus',  n: T('navFocus'), i: 'focus' },
   { k: 'tasks',  n: T('navTasks'), i: 'task'  },
   { k: 'notes',  n: T('navNotes'), i: 'bulb'  },
+  { k: 'files', n: T('navFiles'), i: 'proj' },
   { k: 'projects', n: T('navProjects'), i: 'proj' },
   { k: 'logs', n: T('navLogs'), i: 'bulb' },
   { k: 'review', n: T('navReview'), i: 'chart' },
@@ -1393,7 +1510,7 @@ function render() {
   renderNav();
   $('hero').innerHTML = ui.view === 'focus' ? heroBanner() : '';
   renderNudge(); renderFocus();
-  const v = { focus: vFocus, tasks: vTasks, notes: vNotes, projects: vProjects, 'project-detail': vProjectDetail, logs: vLogs, review: vReview, backup: vBackup }[ui.view];
+  const v = { focus: vFocus, tasks: vTasks, files: vFiles, notes: vNotes, projects: vProjects, 'project-detail': vProjectDetail, logs: vLogs, review: vReview, backup: vBackup }[ui.view];
   $('view').innerHTML = v();
   bind();
 }
@@ -1412,7 +1529,10 @@ function captureDrafts() {
     ui.resetTaskDraft = false;
   } else {
     capture('task', 'taskForm', [['title','tTitle'], ['prio','tPrio'], ['due','tDue'], ['details','tDetails']]);
-    if ($('taskForm')) ui.drafts.task.projectIds = selectedTaskProjects($('taskForm'));
+    if ($('taskForm')) {
+      ui.drafts.task.projectIds = selectedTaskProjects($('taskForm'));
+      ui.drafts.task.linkedFiles = readLinkedFileEditor($('taskForm'));
+    }
   }
   capture('note', 'noteForm', [['text','nText'], ['tags','nTags']]);
   if (ui.resetProjectDraft) {
@@ -1435,7 +1555,7 @@ function renderNav() {
     ? `${T('heroDate', t)} · ${WD[t.getDay()]}`
     : `${t.getMonth()+1}月${t.getDate()}日 ${WD[t.getDay()]}`;
   const cnt = { focus: overdue().length + stuck().length, tasks: todayList().filter(k => !k.done).length,
-                notes: S.notes.length, projects: S.projects.filter(p => p.status !== 'done').length, review: 0, backup: 0 };
+                files: linkedFileIndex().length, notes: S.notes.length, projects: S.projects.filter(p => p.status !== 'done').length, review: 0, backup: 0 };
   $('navScroll').innerHTML = NAV.map(x => {
     const c = cnt[x.k], hot = x.k === 'focus' && c > 0;
     return `<button class="nav-item${ui.view===x.k?' on':''}" data-nav="${x.k}">${I[x.i]}<span>${x.n}</span>
@@ -1578,7 +1698,7 @@ function taskRow(k) {
         <span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span>
         <span class="pill ${od?'red':(k.done?'gray':'cyan')}">${k.done ? T('doneAt', k.doneAt?clock(k.doneAt):'') : human(k.due)}</span>
         ${projectIds.map(pid => `<button class="pill proj-link" data-act="filter-proj" data-id="${pid}" title="${T('filterByProj')}">${I.proj}${esc(projName(pid))}</button>`).join('')}
-      </div>${taskProgressMarkup(k)}${detailsBlock(k, false)}</div>
+      </div>${taskProgressMarkup(k)}${detailsBlock(k, false)}${k.linkedFiles?.length ? `<button class="details-toggle" data-act="task-files" data-id="${esc(k.id)}">${T('linkCount', k.linkedFiles.length)}</button>` : ''}</div>
     <div class="it-act">
       ${!k.done ? `<button class="task-state-btn${k.status==='doing'?' pause':''}" data-act="task-today" data-id="${k.id}" title="${T(k.status==='doing'?'taskPause':'taskStart')}">${T(k.status==='doing'?'taskPause':'taskStart')}</button>` : ''}
       <button class="ico-btn" data-act="edit-task" data-id="${k.id}" title="${T('ttEdit')}">${I.edit}</button>
@@ -1650,6 +1770,7 @@ function vTasks() {
           <button class="btn btn-primary" type="submit">${I.plus}${T('btnAdd')}</button>
         </div>
         <div class="f" style="margin-top:11px"><label>${T('lblDetails')}</label><textarea id="tDetails" placeholder="${T('phTaskDetails')}" maxlength="1200">${esc(draft.details)}</textarea></div>
+        ${linkedFileEditor(draft.linkedFiles)}
         </form></div></div>`
   + `<div class="card"><div class="card-h">${I.task}<h2>${T('taskListTitle')}</h2>
       <div class="sp"><div class="seg">${segs.map(([k,n]) => `<button data-act="tfilter" data-f="${k}" class="${f===k?'on':''}">${n}</button>`).join('')}</div></div></div>
@@ -2008,7 +2129,20 @@ const pById = id => S.projects.find(x => x.id === id);
 async function act(a, el) {
   const id = el && el.dataset.id;
   switch (a) {
-    case 'nav': ui.view = el.dataset.nav; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
+    case 'file-kind': ui.fileKind = el.dataset.kind; render(); return;
+    case 'task-files': ui.fileTaskId = id; ui.fileQ = ''; ui.fileKind = 'all'; ui.view = 'files'; render(); return;
+    case 'clear-file-task': ui.fileTaskId = ''; render(); return;
+    case 'linked-task': openTaskEdit(id); return;
+    case 'copy-linked-path':
+      try { await navigator.clipboard.writeText(el.dataset.path); toast(T('linkCopied')); } catch (e) { toast(T('linkCopyFail'), true); }
+      return;
+    case 'reveal-linked-path':
+      try {
+        const response = await fetch('/api/linked-files/reveal', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({taskId:id, path:el.dataset.path})});
+        if (!response.ok) throw new Error();
+      } catch (e) { toast(T('linkOpenFail'), true); }
+      return;
+    case 'nav': if (el.dataset.nav === 'files') ui.fileTaskId = ''; ui.view = el.dataset.nav; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
     case 'go': ui.view = el.dataset.to; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
     case 'go-upcoming': ui.view = 'tasks'; ui.taskFilter = 'upcoming'; ui.projFilter = ''; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
     case 'goproj': ui.view = 'projects'; window.scrollTo({top:0,behavior:'smooth'}); render(); return;
@@ -2217,7 +2351,7 @@ function openTaskEdit(id) {
   const taskStatusOptions = [['todo','taskTodo'],['doing','taskDoing'],['paused','taskPaused'],['done','taskDone']];
   const m = document.createElement('div');
   m.className = 'mask';
-  m.innerHTML = `<div class="modal" style="max-width:470px"><h3>${T('mEditTask')}</h3>
+  m.innerHTML = `<div class="modal task-edit-modal" role="dialog" aria-modal="true" aria-labelledby="task-edit-heading" style="max-width:620px"><h3 id="task-edit-heading">${T('mEditTask')}</h3>
     <div class="f" style="margin-bottom:11px"><label>${T('lblWhat')}</label><input type="text" id="et_title" value="${esc(k.title)}" maxlength="140"></div>
     <div class="form" style="margin-bottom:11px">
       <div class="f grow"><label>${T('taskStatus')}</label><select id="et_status">${taskStatusOptions.map(([value,label]) => `<option value="${value}"${k.status===value?' selected':''}>${T(label)}</option>`).join('')}</select></div>
@@ -2231,6 +2365,7 @@ function openTaskEdit(id) {
     </div>
     <div class="f" style="margin-bottom:18px"><label>${T('lblLinkProj')}</label>${taskProjectChoices(taskProjectIds(k))}</div>
     <div class="f" style="margin-bottom:18px"><label>${T('lblDetails')}</label><textarea id="et_details" maxlength="1200">${esc(k.details)}</textarea></div>
+    ${linkedFileEditor(k.linkedFiles)}
     <div class="ma"><button class="btn" data-r="0">${T('cancel')}</button><button class="btn btn-primary" data-r="1">${I.save}${T('save')}</button></div></div>`;
   m.addEventListener('click', e => {
     if (e.target === m) return m.remove();
@@ -2238,12 +2373,15 @@ function openTaskEdit(id) {
     if (b.dataset.r === '1') {
       const t = m.querySelector('#et_title').value.trim();
       if (!t) { toast(T('tNeedTitle'), true); return; }
+      let linkedFiles;
+      try { linkedFiles = readLinkedFileEditor(m, true); } catch (e) { toast(e.message, true); return; }
       const requestedStatus = m.querySelector('#et_status').value;
       const requestedProgress = Number(m.querySelector('#et_progress').value);
       k.title = t;
       k.prio = Number(m.querySelector('#et_prio').value);
       k.due = m.querySelector('#et_due').value || '';
       k.details = m.querySelector('#et_details').value.trim();
+      k.linkedFiles = linkedFiles;
       if (requestedStatus === 'done' || requestedProgress >= 100) setTaskStatus(k, 'done');
       else {
         if (k.done || k.status === 'done') { k.done = false; k.doneAt = null; k.progress = 0; delete k.resumeStatus; delete k.resumeProgress; }
@@ -2269,6 +2407,7 @@ function openTaskEdit(id) {
   progressInput.addEventListener('input', () => { progressValue.value = progressInput.value + '%'; progressValue.textContent = progressValue.value; });
   syncProgressEditor();
   bindTaskProjectPicker(m);
+  bindLinkedFileEditor(m);
   setTimeout(() => { const i = m.querySelector('#et_title'); if (i) { i.focus(); i.select(); } }, 30);
 }
 
@@ -2313,18 +2452,20 @@ function openProgressEdit(projectId, recordId) {
 /* --- 表单与事件绑定 --- */
 function bind() {
   const tf = $('taskForm');
-  if (tf) bindTaskProjectPicker(tf);
+  if (tf) { bindTaskProjectPicker(tf); bindLinkedFileEditor(tf); }
   if (tf) tf.onsubmit = e => {
     e.preventDefault();
     const v = $('tTitle').value.trim();
     if (!v) { toast(T('tNeedContent'), true); return; }
+    let linkedFiles;
+    try { linkedFiles = readLinkedFileEditor(tf, true); } catch (e) { toast(e.message, true); return; }
     const projectIds = selectedTaskProjects(tf);
-    S.tasks.unshift({ id: uid(), title: v, prio: Number($('tPrio').value), due: $('tDue').value || '', done: false, status: 'todo', progress: 0, projectIds, projectHistoryIds: projectIds.slice(), pid: projectIds[0] || '', details: $('tDetails').value.trim(), createdAt: Date.now(), doneAt: null });
+    S.tasks.unshift({ id: uid(), title: v, prio: Number($('tPrio').value), due: $('tDue').value || '', done: false, status: 'todo', progress: 0, projectIds, projectHistoryIds: projectIds.slice(), pid: projectIds[0] || '', details: $('tDetails').value.trim(), linkedFiles, createdAt: Date.now(), doneAt: null });
     projectIds.forEach(pid => { const p = projById(pid); if (p) p.updatedAt = Date.now(); });
     // 加到未来的任务，自动跳到「即将到来」，否则留在今天
     const due = $('tDue').value || '';
     ui.taskFilter = (due && due > TODAY()) ? 'upcoming' : 'today';
-    ui.drafts.task = { title: '', prio: '2', due: '', details: '', projectIds: [] };
+    ui.drafts.task = { title: '', prio: '2', due: '', details: '', projectIds: [], linkedFiles: [] };
     ui.resetTaskDraft = true;
     save(true); render();
     toast(projectIds.length === 1 ? T('tAddedTo', projName(projectIds[0])) : T('tAdded'));
@@ -2394,6 +2535,12 @@ function bind() {
       q._t = setTimeout(() => { render(); const n = $('nQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 260);
     };
   }
+  const fq = $('fileQ');
+  if (fq) fq.oninput = () => {
+    ui.fileQ = fq.value;
+    clearTimeout(fq._t);
+    fq._t = setTimeout(() => { render(); const next = $('fileQ'); if (next) { next.focus(); next.setSelectionRange(next.value.length, next.value.length); } }, 180);
+  };
   const imp = $('impFile');
   if (imp) imp.onchange = () => { const f = imp.files && imp.files[0]; if (f) doImportFile(f); };
 }

@@ -5,8 +5,11 @@ from __future__ import annotations
 import copy
 import io
 import json
+import ntpath
 import os
+import posixpath
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -140,6 +143,8 @@ def zip_bytes(state: dict) -> bytes:
 
 def state_from_zip(raw: bytes) -> dict:
     try:
+        if raw.lstrip().startswith(b"{"):
+            return validate_state(json.loads(raw.decode("utf-8")))
         with zipfile.ZipFile(io.BytesIO(raw)) as archive:
             names = set(archive.namelist())
             if not {"tasks.json", "notes.json", "projects.json", "meta.json"}.issubset(names):
@@ -148,7 +153,7 @@ def state_from_zip(raw: bytes) -> dict:
     except DataError:
         raise
     except Exception as exc:
-        raise DataError("备份文件不是有效的工作台 ZIP") from exc
+        raise DataError("备份文件不是有效的工作台 ZIP 或 JSON") from exc
     state = {"tasks": docs["tasks.json"].get("items"), "notes": docs["notes.json"].get("items"),
              "projects": docs["projects.json"].get("items"), "logs": docs.get("logs.json", {}).get("items", []), "meta": docs["meta.json"]}
     return validate_state(state)
@@ -169,6 +174,75 @@ def load_config() -> dict:
     if not isinstance(port, int) or not 1 <= port <= 65535:
         raise DataError("port 必须是 1 到 65535 之间的整数")
     return {"host": host, "port": port}
+
+
+def linked_path_key(value):
+    if not isinstance(value, str) or not value or len(value) > 4096:
+        raise DataError("关联路径无效")
+    if any(ord(char) < 32 or ord(char) == 127 for char in value):
+        raise DataError("关联路径无效")
+    value = value.strip()
+    windows = (len(value) >= 3 and value[0].isalpha() and value[1] == ':' and value[2] in '/\\') or value.startswith(('\\\\', '//'))
+    if windows:
+        path = value.replace('\\', '/')
+        if path.startswith(('//?/', '//./')):
+            raise DataError("不支持设备路径")
+        return ntpath.normcase(ntpath.normpath(path))
+    if not value.startswith('/'):
+        raise DataError("请使用本机绝对路径")
+    return posixpath.normpath(value)
+
+
+def reveal_linked_file(task_id, requested_path):
+    if not isinstance(task_id, str) or not task_id:
+        raise DataError("待办标识无效")
+    key = linked_path_key(requested_path)
+    state = state_from_disk()
+    task = next((task for task in state['tasks'] if task.get('id') == task_id), None)
+    links = task.get('linkedFiles', []) if task else []
+    link = None
+    for item in links if isinstance(links, list) else []:
+        if not isinstance(item, dict):
+            continue
+        try:
+            matches = linked_path_key(item.get('path')) == key
+        except DataError:
+            continue
+        if matches:
+            link = item
+            break
+    if not link:
+        raise DataError("路径尚未关联到已保存的待办，请先保存")
+    # Always use the saved path, never an unchecked request argument.
+    path = Path(link['path'])
+    if not path.is_absolute():
+        raise DataError("该路径属于其他操作系统，无法在本机打开")
+    try:
+        if not path.exists():
+            raise DataError("关联路径不存在，文件可能已移动，请编辑待办更新路径")
+        kind = link.get('kind')
+        if kind not in ('file', 'directory') or (kind == 'directory' and not path.is_dir()) or (kind == 'file' and not path.is_file()):
+            raise DataError("关联类型与实际文件或目录不一致，请编辑待办更新")
+        if sys.platform == 'darwin':
+            # Explicitly target Finder for directories: opening a .app bundle
+            # through its default handler could otherwise launch the bundle.
+            command = ['open', '-a', '/System/Library/CoreServices/Finder.app', '--', str(path)] if kind == 'directory' else ['open', '-R', '--', str(path)]
+        elif sys.platform == 'win32':
+            command = ['explorer.exe', str(path)] if kind == 'directory' else ['explorer.exe', '/select,', str(path)]
+        else:
+            command = ['xdg-open', str(path if kind == 'directory' else path.parent)]
+        try:
+            subprocess.run(command, check=sys.platform != 'win32', timeout=5,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError:
+            if sys.platform != 'darwin' or kind != 'directory':
+                raise
+            # Some launch environments cannot resolve Finder as an application.
+            # Reveal still opens its parent and selects the linked directory.
+            subprocess.run(['open', '-R', '--', str(path)], check=True, timeout=5,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise DataError("无法打开文件管理器，请检查路径及系统权限") from exc
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -220,6 +294,31 @@ class Handler(BaseHTTPRequestHandler):
             self._send(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
 
     def do_POST(self):
+        if self.path == '/api/linked-files/reveal':
+            # Opening a desktop window is a local side effect: require the exact
+            # browser origin and loopback Host/port, even if general API reads
+            # allow clients without an Origin header.
+            host = self.headers.get('Host', '')
+            try:
+                parsed = urlparse('http://' + host)
+                local = (parsed.hostname in ('127.0.0.1', 'localhost', '::1')
+                         and parsed.port == self.server.server_port
+                         and parsed.netloc == host and not parsed.username
+                         and self.headers.get('Origin') == 'http://' + host)
+            except ValueError:
+                local = False
+            if not local:
+                self._send(HTTPStatus.FORBIDDEN, {'error': '只允许本机工作台打开关联目录'})
+                return
+            try:
+                body = json.loads(self._body().decode('utf-8'))
+                if not isinstance(body, dict):
+                    raise DataError('请求数据格式不正确')
+                reveal_linked_file(body.get('taskId'), body.get('path'))
+                self._send(HTTPStatus.OK, {'ok': True})
+            except (ValueError, UnicodeDecodeError, DataError) as exc:
+                self._send(HTTPStatus.BAD_REQUEST, {'error': str(exc)})
+            return
         if not self._check_origin(): return
         path = urlparse(self.path)
         try:

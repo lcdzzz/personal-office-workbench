@@ -90,7 +90,9 @@ def run_check(window, directory, url):
         request('/api/backup/import?mode=replace', backup, {'If-Match':generation})
         result['checks'].append('backup-export-import')
         window.evaluate_js("window.__packageReloadMarker = true; true")
-        window.load_url(url)
+        # Edge ignores assigning its current Source URL, while pywebview clears
+        # its bridge-ready event. Reload the document through the browser instead.
+        window.evaluate_js("setTimeout(() => location.reload(), 50); true")
         wait_for(lambda: window.evaluate_js("typeof window.__packageReloadMarker === 'undefined' && typeof S !== 'undefined' && S && S.tasks.some(t => t.title==='Package acceptance linked task' && t.done && t.linkedFiles.length===1)"), 'reload-persistence')
         result['renderer'] = webview.renderer
         result['port'] = int(origin.rsplit(':',1)[1])

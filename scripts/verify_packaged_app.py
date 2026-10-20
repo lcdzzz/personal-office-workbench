@@ -40,7 +40,13 @@ def verify(executable, directory, version, architecture):
                 reports.append(report)
             finally:
                 if process.poll() is None:
-                    process.terminate()
+                    # A PyInstaller one-file EXE has a bootloader parent and an
+                    # application child. End only this launched process tree.
+                    if platform.system() == 'Windows':
+                        subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],
+                                       stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                    else:
+                        process.terminate()
                     process.wait(timeout=15)
     return reports
 

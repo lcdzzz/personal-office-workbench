@@ -17,7 +17,7 @@ A lightweight, local-first personal workbench for tracking tasks, notes, and pro
 - macOS or Windows
 - Python 3
 
-The browser launcher needs no database, Node.js runtime, or third-party Python package. The macOS app bundles its runtime and does not require a separate Python installation.
+The browser launcher needs no database, Node.js runtime, or third-party Python package. The native desktop packages bundle their runtime and does not require a separate Python installation.
 
 ## Start
 
@@ -42,19 +42,35 @@ Windows: `%APPDATA%\PersonalOfficeWorkbench\config.json`
 }
 ```
 
-## macOS app and DMG
+## Desktop packages: Windows, Intel Mac, and Apple Silicon
 
-On a Mac, build a drag-to-Applications disk image with:
+The native packages share the same HTML interface and Python service. Each embeds its version, Git commit, architecture, and a fingerprint of the interface/backend. The app rejects a running backend with a different fingerprint instead of silently reusing an older service.
+
+| Platform | Package |
+| --- | --- |
+| Windows 10/11 x64 | `Personal-Office-Workbench-Windows-x64-v1.0.0.exe` |
+| Intel Mac | `Personal-Office-Workbench-macOS-x86_64-v1.0.0.dmg` |
+| Apple Silicon Mac | `Personal-Office-Workbench-macOS-arm64-v1.0.0.dmg` |
+
+The packages bundle Python. Windows uses Microsoft Edge WebView2 Runtime, which must be installed; see [Microsoft's official runtime download](https://developer.microsoft.com/microsoft-edge/webview2/). Open the EXE directly. On macOS, open the matching DMG and drag **Personal Office Workbench.app** to **Applications**.
+
+Build on the matching operating system and architecture:
 
 ```bash
-./build-macos-dmg.sh
+# Apple Silicon Mac
+./build-macos-dmg.sh arm64 v1.0.0
+# Intel Mac
+./build-macos-dmg.sh x86_64 v1.0.0
 ```
 
-The script creates `dist/Personal-Office-Workbench-macOS-<architecture>.dmg`. Open the DMG and drag **Personal Office Workbench.app** to **Applications**. The app includes its Python runtime and opens the workbench in its own macOS window. Closing the window stops the local service started by the app. Your data remains in `~/Library/Application Support/PersonalOfficeWorkbench/`, independently of the installed app.
+```powershell
+# Windows x64
+.\build-windows-exe.ps1 -Version v1.0.0
+```
 
-The first build downloads PyInstaller and pywebview into a project-local `.build-venv`. Builds target the architecture of the Mac running the script. This build is not signed with a Developer ID certificate or notarized, so macOS may show a security prompt. Removing that prompt for external distribution requires Developer ID signing and Apple notarization.
+The scripts create versioned packages in `dist/`. Build dependencies are pinned in `requirements-desktop-build.txt`. GitHub Actions builds each architecture on its matching runner, opens the actual EXE or mounted DMG in an isolated data directory, exercises linked files and backups, restarts the app, and verifies that the app's server exits when its window closes. All three native acceptance checks and matching core fingerprints are required before publishing. A manual workflow run creates candidate artifacts without publishing a Release.
 
-Only loopback addresses are accepted, so the server is not exposed to your network.
+macOS builds use ad hoc signing, without Developer ID signing or Apple notarization. Windows builds are not commercially code signed. System security prompts may appear on first launch. Data stays in the existing application data directory independently of the installed app.
 
 ## Stop
 
@@ -107,7 +123,7 @@ It contains `tasks.json`, `notes.json`, `projects.json`, `logs.json`, and `meta.
 
 ```bash
 python3 -m py_compile server.py
-python3 -m unittest -v linked_files_server_test.py workbench_test.py
+python3 -m unittest -v linked_files_server_test.py workbench_test.py desktop_package_test.py
 bash -n workbench.sh
 bash -n restart.sh
 bash -n start.sh

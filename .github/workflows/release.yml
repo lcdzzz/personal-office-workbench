@@ -2,14 +2,23 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Candidate version (vX.Y.Z); manual runs build without publishing'
+        required: true
+        default: v1.0.0
 
 permissions:
-  contents: write
+  contents: read
+
+env:
+  WORKBENCH_VERSION: ${{ inputs.version || github.ref_name }}
 
 jobs:
-  release:
+  test:
+    timeout-minutes: 15
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -19,28 +28,103 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install test dependency
-        run: npm install
-      - name: Test
-        run: npm test
-      - name: Package macOS launcher and app
+      - run: npm ci
+      - run: npm test
+
+  build:
+    timeout-minutes: 35
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: macos-arm64
+            runner: macos-15
+            python_arch: arm64
+            architecture: arm64
+          - id: macos-intel
+            runner: macos-15-intel
+            python_arch: x64
+            architecture: x86_64
+          - id: windows-x64
+            runner: windows-latest
+            python_arch: x64
+            architecture: x86_64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.python_arch }}
+      - name: Build macOS native app and DMG
+        if: runner.os == 'macOS'
+        run: ./build-macos-dmg.sh '${{ matrix.architecture }}' "$WORKBENCH_VERSION"
+      - name: Verify mounted DMG and native UI twice
+        if: runner.os == 'macOS'
         run: |
-          name="personal-office-workbench-macos-${GITHUB_REF_NAME}"
-          mkdir -p "$name"
-          cp README.md LICENSE config.example.json personal-office-workbench.html server.py workbench.sh start.sh shutdown.sh restart.sh start-windows.ps1 shutdown-windows.ps1 build-macos-dmg.sh macos_app.py requirements-macos-build.txt "$name/"
-          chmod +x "$name/workbench.sh" "$name/start.sh" "$name/shutdown.sh" "$name/restart.sh"
-          zip -r "$name.zip" "$name"
-          ./build-macos-dmg.sh
-          mv dist/Personal-Office-Workbench-macOS-arm64.dmg "Personal-Office-Workbench-macOS-arm64-${GITHUB_REF_NAME}.dmg"
+          python scripts/verify_packaged_app.py \
+            --dmg "dist/Personal-Office-Workbench-macOS-${{ matrix.architecture }}-${WORKBENCH_VERSION}.dmg" \
+            --version "$WORKBENCH_VERSION" --architecture '${{ matrix.architecture }}' \
+            --report "dist/${{ matrix.id }}-acceptance.json"
+      - name: Build Windows standalone EXE
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build-windows-exe.ps1 -Version $env:WORKBENCH_VERSION
+      - name: Verify Windows native UI twice
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python scripts/verify_packaged_app.py --executable "dist/Personal-Office-Workbench-Windows-x64-$env:WORKBENCH_VERSION.exe" --version $env:WORKBENCH_VERSION --architecture x86_64 --report dist/windows-x64-acceptance.json
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged EXE acceptance failed' }
       - uses: actions/upload-artifact@v4
         with:
-          name: personal-office-workbench-macos-${{ github.ref_name }}
+          name: build-${{ matrix.id }}
+          if-no-files-found: error
           path: |
-            personal-office-workbench-macos-${{ github.ref_name }}.zip
-            Personal-Office-Workbench-macOS-arm64-${{ github.ref_name }}.dmg
+            dist/*.dmg
+            dist/*.exe
+            dist/*-acceptance.json
+
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: build-*
+          path: release
+          merge-multiple: true
+      - name: Require all three packages and matching core fingerprints
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('release');version=os.environ['WORKBENCH_VERSION']
+          files=[root/f'Personal-Office-Workbench-Windows-x64-{version}.exe',
+                 root/f'Personal-Office-Workbench-macOS-x86_64-{version}.dmg',
+                 root/f'Personal-Office-Workbench-macOS-arm64-{version}.dmg']
+          reports=[json.loads(path.read_text()) for path in root.glob('*-acceptance.json')]
+          assert len(reports)==3 and all(report['ok'] for report in reports),reports
+          signatures={run['runtime']['coreSha256'] for report in reports for run in report['runs']}
+          commits={run['runtime']['sourceCommit'] for report in reports for run in report['runs']}
+          assert len(signatures)==1 and commits=={os.environ['GITHUB_SHA']},(signatures,commits)
+          sums=[]
+          for path in files:
+              assert path.is_file() and path.stat().st_size>1000000,path
+              sums.append(hashlib.sha256(path.read_bytes()).hexdigest()+'  '+path.name)
+          (root/'SHA256SUMS.txt').write_text('\n'.join(sums)+'\n')
+          PY
       - uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          name: ${{ env.WORKBENCH_VERSION }}
+          body_path: docs/releases/${{ env.WORKBENCH_VERSION }}.md
+          fail_on_unmatched_files: true
           files: |
-            personal-office-workbench-macos-${{ github.ref_name }}.zip
-            Personal-Office-Workbench-macOS-arm64-${{ github.ref_name }}.dmg
+            release/*.exe
+            release/*.dmg
+            release/SHA256SUMS.txt

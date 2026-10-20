@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import copy
 import io
+import hashlib
 import json
+from functools import lru_cache
 import ntpath
 import os
 import posixpath
@@ -176,6 +178,31 @@ def load_config() -> dict:
     return {"host": host, "port": port}
 
 
+def source_fingerprint():
+    digest = hashlib.sha256()
+    for name in ('personal-office-workbench.html', 'server.py'):
+        digest.update(name.encode('utf-8') + b'\0')
+        digest.update((ROOT / name).read_bytes().replace(b'\r\n', b'\n'))
+    return digest.hexdigest()
+
+
+@lru_cache(maxsize=1)
+def runtime_info():
+    metadata = ROOT / 'build-info.json'
+    if getattr(sys, 'frozen', False):
+        if not metadata.is_file():
+            raise DataError('程序缺少版本信息，请重新下载安装包')
+        info = read_json(metadata)
+        if not isinstance(info, dict) or not isinstance(info.get('coreSha256'), str) or len(info['coreSha256']) != 64:
+            raise DataError('程序版本信息无效，请重新下载应用')
+        return {key: info.get(key, '') for key in ('version', 'sourceCommit', 'coreSha256', 'platform', 'architecture')}
+    return {'version': 'source', 'sourceCommit': '', 'coreSha256': source_fingerprint(), 'platform': sys.platform, 'architecture': ''}
+
+
+# Keep the identity of the loaded code, even if source files change on disk.
+runtime_info()
+
+
 def linked_path_key(value):
     if not isinstance(value, str) or not value or len(value) > 4096:
         raise DataError("关联路径无效")
@@ -272,6 +299,11 @@ class Handler(BaseHTTPRequestHandler):
         return True
 
     def do_GET(self):
+        if self.path == '/api/runtime':
+            if not self._check_origin(): return
+            try: self._send(HTTPStatus.OK, runtime_info())
+            except (DataError, OSError) as exc: self._send(HTTPStatus.BAD_REQUEST, {'error': str(exc)})
+            return
         if self.path == "/api/workbench":
             if not self._check_origin(): return
             try: self._send(HTTPStatus.OK, state_from_disk())

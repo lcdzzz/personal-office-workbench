@@ -27,3 +27,7 @@ build/
 dist/
 __pycache__/
 *.spec
+
+# Desktop build metadata and Windows packaging environment
+build-info.json
+.build-venv-windows/

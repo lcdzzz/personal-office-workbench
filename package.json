@@ -2,7 +2,7 @@
   "name": "personal-office-workbench-dev-checks",
   "private": true,
   "scripts": {
-    "test": "python3 -m py_compile server.py && python3 -m unittest -v linked_files_server_test.py workbench_test.py && bash -n workbench.sh && bash -n restart.sh && bash -n start.sh && bash -n shutdown.sh && bash shutdown_test.sh && node smoke_test.cjs && node linked_files_test.cjs"
+    "test": "python3 -m py_compile server.py desktop_app.py macos_app.py package_check.py scripts/build_metadata.py scripts/verify_packaged_app.py && python3 -m unittest -v linked_files_server_test.py workbench_test.py desktop_package_test.py && bash -n build-macos-dmg.sh && bash -n workbench.sh && bash -n restart.sh && bash -n start.sh && bash -n shutdown.sh && bash shutdown_test.sh && node smoke_test.cjs && node linked_files_test.cjs"
   },
   "devDependencies": {
     "jsdom": "^27.0.0"

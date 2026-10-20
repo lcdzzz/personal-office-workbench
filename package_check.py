@@ -23,8 +23,11 @@ def run_check(window, directory, url):
     def request(path, body=None, headers=None):
         data = json.dumps(body).encode() if isinstance(body,dict) else body
         req = Request(origin+path, data=data, headers={'Origin':origin, 'Content-Type':'application/json', **(headers or {})})
-        with urlopen(req, timeout=10) as response:
-            return response.read()
+        try:
+            with urlopen(req, timeout=10) as response:
+                return response.read()
+        except HTTPError as error:
+            raise AssertionError(f'{path}: HTTP {error.code}: {error.read().decode(errors="replace")}') from error
 
     def wait_for(check, label):
         deadline = time.monotonic()+40
@@ -66,12 +69,13 @@ def run_check(window, directory, url):
             wait_for(lambda: task() and task()['linkedFiles'][0]['path']==str(reference).replace('\\','/'), 'create-task-and-link')
         window.evaluate_js("document.querySelector('[data-nav=files]').click(); true")
         wait_for(lambda: window.evaluate_js("!!document.querySelector('[data-linked-resource]') && document.querySelector('#view').textContent.includes('Package acceptance linked task')"), 'linked-files-index')
+        edited_note = f'Native package verified experience {time.time_ns()}'
         window.evaluate_js("""(() => {
           document.querySelector('[data-act=linked-task]').click();
-          document.querySelector('.mask [data-link-note]').value='Native package verified experience';
+          document.querySelector('.mask [data-link-note]').value=EDITED_NOTE;
           document.querySelector('.mask [data-r="1"]').click(); return true;
-        })()""")
-        wait_for(lambda: task()['linkedFiles'][0]['note']=='Native package verified experience', 'edit-link-note')
+        })()""".replace('EDITED_NOTE', json.dumps(edited_note)))
+        wait_for(lambda: task()['linkedFiles'][0]['note']==edited_note, 'edit-link-note')
         current = task()
         request('/api/linked-files/reveal', {'taskId':current['id'], 'path':current['linkedFiles'][0]['path']})
         result['checks'].append('show-in-file-manager')
@@ -85,7 +89,7 @@ def run_check(window, directory, url):
         backup = request('/api/backup/export', b'')
         with zipfile.ZipFile(io.BytesIO(backup)) as archive:
             items = json.loads(archive.read('tasks.json'))['items']
-            assert items[0]['linkedFiles'][0]['note']=='Native package verified experience'
+            assert items[0]['linkedFiles'][0]['note']==edited_note
         generation = str(server.state_from_disk()['generation'])
         request('/api/backup/import?mode=replace', backup, {'If-Match':generation})
         result['checks'].append('backup-export-import')

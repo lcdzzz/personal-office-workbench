@@ -394,6 +394,9 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .pt-table .pt-chk{margin:1px 0 0}
 .pt-table .pt-empty-detail{color:var(--text-4)}
 .pt-table .pt-completed-at{display:block;margin-top:4px;font-size:11px;color:var(--text-4)}
+.task-created{font-size:11px;color:var(--text-3);font-weight:400;line-height:1.6}
+.pt-n .task-created{display:block}
+.pt-table td:nth-child(5){white-space:nowrap}
 .pt-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#20403e}
 .pt-d{font-size:11px;color:var(--text-4);flex-shrink:0;font-weight:550}
 .pt-d.od{color:var(--danger);font-weight:700}
@@ -730,6 +733,7 @@ const I18N = {
     emptyUpcoming: '未来还没有安排任务。', emptyDone: '还没有完成记录。',
     emptyDefault: '这里还是空的。', emptyProjFilter: '这个项目在当前筛选下没有任务。',
     doneAt: t => `已完成 ${t}`,
+    taskCreatedAt: '创建时间', taskCreatedUnknown: '未知',
     ttEdit: '编辑', ttDelete: '删除', ttComplete: '完成',
 
     notesHead: '灵感速记',
@@ -918,6 +922,7 @@ const I18N = {
     emptyUpcoming: 'Nothing scheduled ahead.', emptyDone: 'No completed items yet.',
     emptyDefault: 'Still empty here.', emptyProjFilter: 'No tasks for this project under the current filter.',
     doneAt: t => `Done ${t}`,
+    taskCreatedAt: 'Created at', taskCreatedUnknown: 'Unknown',
     ttEdit: 'Edit', ttDelete: 'Delete', ttComplete: 'Complete',
 
     notesHead: 'Quick Notes',
@@ -1126,6 +1131,15 @@ const clock = ts => {
   if (n === 1) return T('tYesterday', hm);
   return `${d.getMonth()+1}/${d.getDate()} ${hm}`;
 };
+/* 创建时间按本地时区显示到分钟，今年省略年份；缺失的历史时间不补造。 */
+function taskCreatedMarkup(k) {
+  const ts = k.createdAt;
+  const d = (typeof ts === 'number' || (typeof ts === 'string' && ts.trim())) ? new Date(ts) : new Date(NaN);
+  const value = Number.isFinite(d.getTime())
+    ? `<time datetime="${d.toISOString()}">${d.getFullYear() === new Date().getFullYear() ? ds(d).slice(5) : ds(d)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</time>`
+    : T('taskCreatedUnknown');
+  return `<span class="task-created">${T('taskCreatedAt')}: ${value}</span>`;
+}
 /* 周一为一周起点 */
 const weekStart = (base, offset = 0) => {
   const d = new Date(base + 'T00:00:00');
@@ -1487,7 +1501,7 @@ function vFiles() {
       const attrs = `data-id="${esc(file.tasks[0].task.id)}" data-path="${esc(file.path)}"`;
       return `<article class="linked-resource" data-linked-resource><div class="linked-resource-head"><div><div class="linked-resource-name">${file.kind==='directory'?I.proj:I.file} ${esc(name)} <span class="pill gray">${T(file.kind==='directory'?'linkDirectory':'linkFile')}</span></div><div class="linked-path">${esc(file.path)}</div></div>
         <div class="linked-resource-actions"><button class="btn btn-sm" data-act="copy-linked-path" ${attrs}>${T('linkCopy')}</button><button class="btn btn-sm" data-act="reveal-linked-path" ${attrs}>${T('linkReveal')}</button></div></div>
-        ${file.tasks.map(({task,note}) => `<div class="linked-task"><button class="linked-task-title" data-act="linked-task" data-id="${esc(task.id)}">${esc(task.title)}</button> ${taskStateMarkup(task)}${note?`<div class="linked-note">${esc(note)}</div>`:''}</div>`).join('')}</article>`;
+        ${file.tasks.map(({task,note}) => `<div class="linked-task"><button class="linked-task-title" data-act="linked-task" data-id="${esc(task.id)}">${esc(task.title)}</button> ${taskStateMarkup(task)} ${taskCreatedMarkup(task)}${note?`<div class="linked-note">${esc(note)}</div>`:''}</div>`).join('')}</article>`;
     }).join('') : emptyBox(T(all.length ? 'filesNoMatch' : 'filesEmpty'),'proj')}
   </div></div>`;
 }
@@ -1606,7 +1620,7 @@ function renderFocus() {
   const rows = [];
   od.forEach(k => rows.push(`<div class="frow"><span class="dot"></span>
     <div class="ft"><b>${esc(k.title)}</b>
-      <span>${T('fTask')}${taskProjectIds(k).length ? ` · <b style="color:var(--accent-dark);display:inline">${esc(taskProjectIds(k).map(projName).join(' · '))}</b>` : ''} · ${T('fDue', esc(k.due))} · <strong style="color:var(--danger)">${T('fOverdue', -dayDiff(TODAY(), k.due))}</strong></span></div>
+      <span>${T('fTask')}${taskProjectIds(k).length ? ` · <b style="color:var(--accent-dark);display:inline">${esc(taskProjectIds(k).map(projName).join(' · '))}</b>` : ''} · ${T('fDue', esc(k.due))} · <strong style="color:var(--danger)">${T('fOverdue', -dayDiff(TODAY(), k.due))}</strong></span>${taskCreatedMarkup(k)}</div>
     <div class="fa"><span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span>
       <button class="btn btn-sm" data-act="done" data-id="${k.id}">${I.check}${T('btnDone')}</button></div></div>`));
   st.forEach(p => { const g = projProgress(p.id);
@@ -1695,6 +1709,7 @@ function taskRow(k) {
     <div class="it-main"><div class="it-title">${esc(k.title)}</div>
       <div class="it-meta">
         ${taskStateMarkup(k)}
+        ${taskCreatedMarkup(k)}
         <span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span>
         <span class="pill ${od?'red':(k.done?'gray':'cyan')}">${k.done ? T('doneAt', k.doneAt?clock(k.doneAt):'') : human(k.due)}</span>
         ${projectIds.map(pid => `<button class="pill proj-link" data-act="filter-proj" data-id="${pid}" title="${T('filterByProj')}">${I.proj}${esc(projName(pid))}</button>`).join('')}
@@ -1880,7 +1895,7 @@ function projTasksBlock(p, detail = false) {
     const tasks = tasksOfProj(p.id);
     return `<div class="ptasks"><div class="pt-h"><span class="pt-t">${T('linkedTasks')}</span><span class="pt-c">${g.done}/${g.total}${g.od.length ? ` · <b class="rd">${T('ptOverdue', g.od.length)}</b>` : ''}</span><button class="btn btn-sm" data-act="add-task-to" data-id="${p.id}">${I.plus}${T('addOne')}</button></div>
       <div class="pt-bar"><span class="pt-fill${g.pct===100?' full':''}" style="width:${g.pct}%"></span></div>
-      <div class="pt-table-wrap"><table class="pt-table"><thead><tr><th>${T('lblStatus')}</th><th>${T('taskTableTitle')}</th><th>${T('taskTableDetails')}</th><th>${T('taskTablePriority')}</th><th>${T('taskTableDue')}</th></tr></thead><tbody>${tasks.map(k => `<tr class="${k.done?'pt-completed':''}"><td><button class="pt-chk${k.done?' on':''}" data-act="toggle" data-id="${k.id}" title="${T(k.done?'reopenTask':'ttComplete')}" aria-label="${T(k.done?'reopenTask':'ttComplete')}" aria-pressed="${k.done}">${I.check}</button><div style="margin-top:5px">${taskStateMarkup(k)}</div>${!k.done ? `<button class="task-state-btn${k.status==='doing'?' pause':''}" style="margin-top:5px" data-act="task-today" data-id="${k.id}">${T(k.status==='doing'?'taskPause':'taskStart')}</button>` : ''}${k.done && k.doneAt ? `<span class="pt-completed-at">${clock(k.doneAt)}</span>` : ''}</td><td>${esc(k.title)}${taskProgressMarkup(k)}</td><td>${k.details ? esc(k.details) : `<span class="pt-empty-detail">—</span>`}</td><td><span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span></td><td>${human(k.due)}</td></tr>`).join('')}</tbody></table></div></div>`;
+      <div class="pt-table-wrap"><table class="pt-table"><thead><tr><th>${T('lblStatus')}</th><th>${T('taskTableTitle')}</th><th>${T('taskTableDetails')}</th><th>${T('taskTablePriority')}</th><th>${T('taskTableDue')}</th><th>${T('taskCreatedAt')}</th></tr></thead><tbody>${tasks.map(k => `<tr class="${k.done?'pt-completed':''}"><td><button class="pt-chk${k.done?' on':''}" data-act="toggle" data-id="${k.id}" title="${T(k.done?'reopenTask':'ttComplete')}" aria-label="${T(k.done?'reopenTask':'ttComplete')}" aria-pressed="${k.done}">${I.check}</button><div style="margin-top:5px">${taskStateMarkup(k)}</div>${!k.done ? `<button class="task-state-btn${k.status==='doing'?' pause':''}" style="margin-top:5px" data-act="task-today" data-id="${k.id}">${T(k.status==='doing'?'taskPause':'taskStart')}</button>` : ''}${k.done && k.doneAt ? `<span class="pt-completed-at">${clock(k.doneAt)}</span>` : ''}</td><td>${esc(k.title)}${taskProgressMarkup(k)}</td><td>${k.details ? esc(k.details) : `<span class="pt-empty-detail">—</span>`}</td><td><span class="pill ${PRIO[k.prio].c}">${PRIO[k.prio].n}</span></td><td>${human(k.due)}</td><td>${taskCreatedMarkup(k)}</td></tr>`).join('')}</tbody></table></div></div>`;
   }
   const show = g.open.slice().sort((a,b) => (a.prio-b.prio) || ((a.due||'9')>(b.due||'9')?1:-1)).slice(0, 3);
   const more = g.open.length - show.length;
@@ -1895,7 +1910,7 @@ function projTasksBlock(p, detail = false) {
       const od = k.due && k.due < TODAY();
       return `<div class="pt-i">
         <button class="pt-chk" data-act="toggle" data-id="${k.id}" title="${T('ttComplete')}">${I.check}</button>
-        <span class="pt-n">${esc(k.title)}</span>
+        <span class="pt-n">${esc(k.title)}${taskCreatedMarkup(k)}</span>
         <span class="pt-d${od?' od':''}">${human(k.due)}</span></div>`;
     }).join('')}${more > 0 ? `<button class="pt-more" data-act="filter-proj" data-id="${p.id}">${T('ptMore', more)}</button>` : ''}</div>`
     : `<div class="pt-done">${I.ok}<span>${T('ptAllDone', g.total)}</span></div>`}
@@ -1905,7 +1920,7 @@ function projFormerTasksBlock(p) {
   const former = S.tasks.filter(k => Array.isArray(k.projectHistoryIds) && k.projectHistoryIds.includes(p.id) && !taskProjectIds(k).includes(p.id))
     .sort((a,b) => (b.doneAt||b.createdAt||0)-(a.doneAt||a.createdAt||0));
   if (!former.length) return '';
-  return `<div class="pt-history"><span class="pt-t">${T('formerLinkedTasks')} · ${former.length}</span><div class="pt-history-list">${former.map(k => `<div class="pt-i${k.done?' pt-completed':''}"><span class="pt-n">${esc(k.title)}</span><span class="pt-d">${T(k.done?'formerTaskDone':'formerTaskOpen')}</span></div>`).join('')}</div></div>`;
+  return `<div class="pt-history"><span class="pt-t">${T('formerLinkedTasks')} · ${former.length}</span><div class="pt-history-list">${former.map(k => `<div class="pt-i${k.done?' pt-completed':''}"><span class="pt-n">${esc(k.title)}${taskCreatedMarkup(k)}</span><span class="pt-d">${T(k.done?'formerTaskDone':'formerTaskOpen')}</span></div>`).join('')}</div></div>`;
 }
 function vProjects() {
   const draft = ui.drafts.project;
@@ -2029,7 +2044,7 @@ function vReview() {
       <div class="card-b">${(od.length || st.length) ? `
         ${st.map(p => { const g = projProgress(p.id);
           return `<div class="blk"><b>${esc(p.name)}</b> · ${T('blkProjStuck')}<span>${esc(p.blocker||T('fNoReason'))}</span>${p.next?`<br><span style="color:var(--text-3)">${T('blkNextStep')}${esc(p.next)}</span>`:''}${g.total?`<br><span style="color:var(--text-3)">${T('blkLinked', g.done, g.total, g.od.length)}</span>`:''}</div>`; }).join('')}
-        ${od.map(k => `<div class="blk"><b>${esc(k.title)}</b>${taskProjectIds(k).map(pid => ` <span class="pill teal" style="font-size:10px">${esc(projName(pid))}</span>`).join('')} · ${T('blkTaskOverdue')} <span>${T('blkDays', -dayDiff(TODAY(),k.due))}</span></div>`).join('')}`
+        ${od.map(k => `<div class="blk"><b>${esc(k.title)}</b>${taskProjectIds(k).map(pid => ` <span class="pill teal" style="font-size:10px">${esc(projName(pid))}</span>`).join('')} · ${T('blkTaskOverdue')} <span>${T('blkDays', -dayDiff(TODAY(),k.due))}</span> · ${taskCreatedMarkup(k)}</div>`).join('')}`
         : emptyBox(T('noBlockers'),'ok')}</div></div>`;
 }
 
@@ -2352,6 +2367,7 @@ function openTaskEdit(id) {
   const m = document.createElement('div');
   m.className = 'mask';
   m.innerHTML = `<div class="modal task-edit-modal" role="dialog" aria-modal="true" aria-labelledby="task-edit-heading" style="max-width:620px"><h3 id="task-edit-heading">${T('mEditTask')}</h3>
+    <div style="margin-bottom:11px">${taskCreatedMarkup(k)}</div>
     <div class="f" style="margin-bottom:11px"><label>${T('lblWhat')}</label><input type="text" id="et_title" value="${esc(k.title)}" maxlength="140"></div>
     <div class="form" style="margin-bottom:11px">
       <div class="f grow"><label>${T('taskStatus')}</label><select id="et_status">${taskStatusOptions.map(([value,label]) => `<option value="${value}"${k.status===value?' selected':''}>${T(label)}</option>`).join('')}</select></div>
